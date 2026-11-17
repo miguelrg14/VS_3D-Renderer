@@ -61,11 +61,21 @@ int main(int, char* [])
             }
 
             case SDL_KEYDOWN:
+                if (event.key.repeat) break;        // Holding a key must not toggle it again and again
+
                 switch (event.key.keysym.sym) 
                 {
                 case SDLK_ESCAPE:
                     camera_active = !camera_active; // Toggle mode
                     SDL_SetRelativeMouseMode(camera_active ? SDL_TRUE : SDL_FALSE);
+                    break;
+
+                case SDLK_p:
+                    scene.toggle_post_effect();     // Sepia on/off
+                    break;
+
+                case SDLK_r:
+                    scene.toggle_low_resolution();  // 256x256 or native resolution
                     break;
 
                 default:

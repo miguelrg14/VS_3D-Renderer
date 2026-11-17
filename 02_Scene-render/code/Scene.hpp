@@ -27,8 +27,13 @@ namespace udit
         std::unique_ptr<SceneNode> rootNode;
 
         // Post-processing: off-screen framebuffer resolution
-        GLsizei  framebuffer_width = 256;
-        GLsizei framebuffer_height = 256;
+        static constexpr GLsizei low_resolution_size = 256;
+
+        GLsizei  framebuffer_width = low_resolution_size;
+        GLsizei framebuffer_height = low_resolution_size;
+
+        bool  low_resolution      = true;     // R key: 256x256 retro look or native resolution
+        bool  post_effect_enabled = true;     // P key: sepia filter on/off
 
         static const std::string           vertex_shader_code;
         static const std::string         fragment_shader_code;
@@ -49,6 +54,7 @@ namespace udit
         GLint               normal_matrix_id = -1;
         GLint              material_color_id = -1;
         GLint              light_position_id = -1;
+        GLint              effect_enabled_id = -1;
         GLint   terrain_projection_matrix_id = -1;
         GLint   terrain_model_view_matrix_id = -1;
 
@@ -88,10 +94,15 @@ namespace udit
         void   render();
         void   resize(unsigned width, unsigned height);
 
+        /// Runtime post-processing controls
+        void   toggle_post_effect();
+        void   toggle_low_resolution();
+
     private:
 
         /// Post-processing
         void   build_framebuffer();
+        void   resize_framebuffer(GLsizei width, GLsizei height);
 
         void load_mesh
         (

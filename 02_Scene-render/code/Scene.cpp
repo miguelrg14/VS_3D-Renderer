@@ -168,6 +168,9 @@ namespace udit
             /// Texture the scene was rendered into
             uniform sampler2D sampler2d;
 
+            /// Toggled at runtime with the P key
+            uniform bool effect_enabled;
+
             /// Input from the vertex shader:
             in  vec2 texture_uv;      // Interpolated UVs
 
@@ -176,17 +179,21 @@ namespace udit
 
             void main()
             {
-                /// Effect: soft sepia tone
                 // 1) Sample the original colour
-                   vec3 color = texture (sampler2d, texture_uv.st).rgb;
-                // 2) Convert to average luminance
-                   float i = (color.r + color.g + color.b) * 0.3333333333;
-                // 3) Apply a brownish (soft sepia) tint
-                   vec3 sepia = vec3(1.0, 0.75, 0.5);
-                   fragment_color = vec4(vec3(i, i, i) * sepia, 1.0);
+                vec3 color = texture (sampler2d, texture_uv.st).rgb;
 
-                /// Alternative: show the original image without the effect
-                //fragment_color = texture(sampler2d, texture_uv);
+                if (!effect_enabled)
+                {
+                    fragment_color = vec4(color, 1.0);      // original image
+                    return;
+                }
+
+                /// Effect: soft sepia tone
+                // 2) Convert to average luminance
+                float i = (color.r + color.g + color.b) * 0.3333333333;
+                // 3) Apply a brownish (soft sepia) tint
+                vec3 sepia = vec3(1.0, 0.75, 0.5);
+                fragment_color = vec4(vec3(i, i, i) * sepia, 1.0);
             }
         )";
 
@@ -275,6 +282,9 @@ namespace udit
             normal_matrix_id = glGetUniformLocation(program_id, "normal_matrix"    );
            material_color_id = glGetUniformLocation(program_id, "material_color"   );
            light_position_id = glGetUniformLocation(program_id, "light.position"   );
+        // Terrain
+        // Post-processing
+        effect_enabled_id = glGetUniformLocation(effect_program_id, "effect_enabled");
         // Terrain
         terrain_projection_matrix_id = glGetUniformLocation(terrain_program_id, "projection_matrix");
         terrain_model_view_matrix_id = glGetUniformLocation(terrain_program_id, "model_view_matrix");
@@ -435,6 +445,7 @@ namespace udit
 
         glDisable(GL_DEPTH_TEST);
         glUseProgram(effect_program_id);
+        glUniform1i(effect_enabled_id, post_effect_enabled ? 1 : 0);
 
         glBindVertexArray(framebuffer_quad_vao);
         glActiveTexture(GL_TEXTURE0);
@@ -455,10 +466,44 @@ namespace udit
 
         camera.set_ratio(float(width) / float(height));
 
+        if (!low_resolution)
+        {
+            resize_framebuffer(GLsizei(width), GLsizei(height));
+        }
+
         glViewport (0, 0, width, height);
     }
 
+    void Scene::toggle_post_effect()
+    {
+        post_effect_enabled = !post_effect_enabled;
+    }
+
+    void Scene::toggle_low_resolution()
+    {
+        low_resolution = !low_resolution;
+
+        if (low_resolution) resize_framebuffer(low_resolution_size, low_resolution_size);
+        else                resize_framebuffer(window_width, window_height);
+    }
+
     /// ------------------ POST-PROCESSING ------------------
+
+    void Scene::resize_framebuffer(GLsizei width, GLsizei height)
+    {
+        if (width <= 0 || height <= 0) return;
+
+        framebuffer_width  = width;
+        framebuffer_height = height;
+
+        // Re-allocate the colour texture and the depth buffer. They stay attached
+        // to the framebuffer, which picks up the new size:
+        glBindTexture(GL_TEXTURE_2D, out_texture_id);
+        glTexImage2D (GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+
+        glBindRenderbuffer   (GL_RENDERBUFFER, depthbuffer_id);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+    }
 
     void Scene::build_framebuffer()
     {
