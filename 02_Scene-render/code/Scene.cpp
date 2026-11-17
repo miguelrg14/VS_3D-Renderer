@@ -20,6 +20,7 @@
 #include <assimp/postprocess.h>
 
 // Texture loading
+#include <SDL.h>
 #include <SOIL2.h>
 
 #include "opengl-recipes.hpp"
@@ -575,7 +576,7 @@ namespace udit
 
         if (texture == 0)
         {
-            std::cerr << "[Scene] failed to load texture: " << texture_file_path << "\n";
+            SDL_Log("[Scene] failed to load texture: %s", texture_file_path.c_str());
         }
 
         mesh->setTextureID(texture);
@@ -588,7 +589,7 @@ namespace udit
         }
         catch (const std::exception & error)
         {
-            std::cerr << "[Scene] skipping model: " << error.what() << "\n";
+            SDL_Log("[Scene] skipping model: %s", error.what());
             return;
         }
 

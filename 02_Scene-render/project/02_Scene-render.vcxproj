@@ -66,14 +66,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../libraries/assimp/include;../libraries/glad/include;../libraries/glm/include;../libraries/half/include;../libraries/sdl/include;../libraries/soil2/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../libraries/assimp/include;../../libraries/glad/include;../../libraries/glm/include;../../libraries/half/include;../../libraries/sdl/include;../../libraries/soil2/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>../libraries/assimp/lib/windows/visual-studio-2022/static-x64;../libraries/glad/lib/windows/visual-studio-2022/static-x64;../libraries/sdl/lib/windows/visual-studio-2022/static-x64;../libraries/soil2/lib/windows/visual-studio-2019/static-x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../../libraries/assimp/lib/windows/visual-studio-2022/static-x64;../../libraries/glad/lib/windows/visual-studio-2022/static-x64;../../libraries/sdl/lib/windows/visual-studio-2022/static-x64;../../libraries/soil2/lib/windows/visual-studio-2019/static-x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2-static.lib;SDL2main.lib;gladd.lib;imm32.lib;setupapi.lib;version.lib;winmm.lib;opengl32.lib;assimp-vc143-mt.lib;zlibstatic.lib;soil2.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
