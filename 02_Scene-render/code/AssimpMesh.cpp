@@ -143,13 +143,9 @@ namespace udit
         glBindVertexArray(0);
     }
 
-    void AssimpMesh::draw(const glm::mat4& modelMatrix, GLuint shaderProgram) const
+    void AssimpMesh::draw(const glm::mat4& , GLuint shaderProgram) const
     {
-        // 1) Model uniform
-        GLint loc = glGetUniformLocation(shaderProgram, "model_view_matrix");
-        glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(modelMatrix));
-
-        // 2) Bind the texture if there is one
+        // 1) Bind the texture if there is one
         if (textureID) 
         {
             glActiveTexture(GL_TEXTURE0);
@@ -158,7 +154,7 @@ namespace udit
             glUniform1i(s, 0);
         }
 
-        // 3) Draw the mesh
+        // 2) Draw the mesh
         glBindVertexArray(vao_id);
         glDrawElements(GL_TRIANGLES, number_of_indices, GL_UNSIGNED_INT, nullptr);
         glBindVertexArray(0);

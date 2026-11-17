@@ -24,7 +24,8 @@ namespace udit
     {
     private:
 
-        std::unique_ptr<SceneNode> rootNode;
+        std::unique_ptr<SceneNode> rootNode;           // Opaque objects
+        std::unique_ptr<SceneNode> transparentRoot;    // Drawn last, with blending
 
         // Post-processing: off-screen framebuffer resolution
         static constexpr GLsizei low_resolution_size = 256;
@@ -62,7 +63,14 @@ namespace udit
         GLuint height_texture_id = 0;
         Terrain terrain;
 
-        Cube  cube;
+        /// Animated cubes, drawn through the scene graph. The nodes are owned by the
+        /// graph; these pointers are only kept to update their transforms.
+        std::shared_ptr<Cube> cube_mesh;
+        GLuint      cube_texture_id  = 0;
+        SceneNode * spinning_cube    = nullptr;
+        SceneNode * orbiting_cube    = nullptr;        // Child of spinning_cube
+        SceneNode * transparent_cube = nullptr;
+
         float angle;
 
         /// Lighting: a point light fixed in world space, above and to the side of the scene

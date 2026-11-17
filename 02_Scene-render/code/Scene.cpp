@@ -313,6 +313,37 @@ namespace udit
         load_mesh("../assets/Painting.obj", "../assets/Frame1.jpg",                             glm::translate(glm::mat4(1.0f), glm::vec3( 10.0f,  0.0f, -3.0f)));
         load_mesh("../assets/Plant.obj"   , "../assets/plant1_Material.001_BaseColor.png",      glm::translate(glm::mat4(1.0f), glm::vec3(-10.0f, -1.0f,  0.0f)));
         load_mesh("../assets/Umbrella.obj", "../assets/Umbrella_DefaultMaterial_BaseColor.png", glm::translate(glm::mat4(1.0f), glm::vec3(-15.0f,  0.0f,  0.0f)));
+
+        /// Animated cubes. One cube mesh is shared by three nodes:
+        ///   rootNode
+        ///   +-- spinning cube
+        ///   |   +-- orbiting cube (inherits the spin of its parent)
+        ///   transparentRoot
+        ///   +-- transparent cube
+        cube_texture_id = create_texture_2d("../assets/wood.png");
+
+        cube_mesh = std::make_shared<Cube>();
+        cube_mesh->set_texture(cube_texture_id);
+
+        auto spinning = std::make_unique<SceneNode>();
+        auto orbiting = std::make_unique<SceneNode>();
+        auto see_through = std::make_unique<SceneNode>();
+
+        spinning   ->addMesh(cube_mesh);
+        orbiting   ->addMesh(cube_mesh);
+        see_through->addMesh(cube_mesh);
+
+        spinning_cube    = spinning.get();
+        orbiting_cube    = orbiting.get();
+        transparent_cube = see_through.get();
+
+        spinning->addChild(std::move(orbiting));
+        rootNode->addChild(std::move(spinning));
+
+        transparentRoot = std::make_unique<SceneNode>();
+        transparentRoot->addChild(std::move(see_through));
+
+        update(0.f);    // Initial transforms
     }
 
     Scene::~Scene()
@@ -327,6 +358,9 @@ namespace udit
         // Terrain height map
         glDeleteTextures(1, &height_texture_id);
 
+        // Cube texture (the cube mesh itself frees its buffers)
+        glDeleteTextures(1, &cube_texture_id);
+
         // Shader programs
         glDeleteProgram(program_id);
         glDeleteProgram(effect_program_id);
@@ -337,6 +371,22 @@ namespace udit
     {
         // Real-time scene rotation: 0.6 rad/s, the speed it had at a fixed 60 FPS
         angle += 0.6f * delta_time;
+
+        const glm::vec3 y_axis(0.f, 1.f, 0.f);
+
+        // Spinning cube
+        spinning_cube->localTransform = glm::translate(glm::mat4(1.f), glm::vec3(-10.f, 0.f, -10.f))
+                                      * glm::rotate   (glm::mat4(1.f), angle, y_axis);
+
+        // Orbiting cube: relative to its parent, so it circles around it
+        orbiting_cube->localTransform = glm::translate(glm::mat4(1.f), glm::vec3(5.f, 0.f, 0.f))
+                                      * glm::scale    (glm::mat4(1.f), glm::vec3(0.5f))
+                                      * glm::rotate   (glm::mat4(1.f), angle * 5.f, y_axis);
+
+        // Transparent cube
+        transparent_cube->localTransform = glm::translate(glm::mat4(1.f), glm::vec3(10.f, 0.f, 0.f))
+                                         * glm::scale    (glm::mat4(1.f), glm::vec3(0.5f))
+                                         * glm::rotate   (glm::mat4(1.f), angle * 5.f, y_axis);
     }
 
 
@@ -388,52 +438,12 @@ namespace udit
 
         rootNode->draw(view, program_id);
 
-        /// Rotating cubes
-        glm::mat4      model_cube = glm::translate (glm::mat4(1.0f), glm::vec3(-10.0f, 0.0f, -10.0f)) * glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0.0f, 1.0f, 0.0f));
-        glm::mat4 model_view_cube = view * model_cube;
-        glm::mat4     normal_cube = glm::transpose (glm::inverse(model_view_cube));
-
-        glUniformMatrix4fv (model_view_matrix_id, 1, GL_FALSE, glm::value_ptr(model_view_cube));
-        glUniformMatrix4fv (    normal_matrix_id, 1, GL_FALSE, glm::value_ptr(normal_cube    ));
-
-        cube.render();
-
-        // Child cube orbiting the first one
-        glm::mat4   model_view_child_cube(1);
-
-                    model_view_child_cube = glm::translate(model_view_child_cube, glm::vec3(5.f, 0.f, 0.f));
-                    model_view_child_cube =     glm::scale(model_view_child_cube, glm::vec3(0.5f));
-                    model_view_child_cube =    glm::rotate(model_view_child_cube, angle * 5.f, glm::vec3(0.f, 1.f, 0.f));
-
-                    model_view_child_cube = view * model_cube * model_view_child_cube;
-
-        glm::mat4 normal_child_cube = glm::transpose(glm::inverse(model_view_child_cube));
-
-        glUniformMatrix4fv(model_view_matrix_id, 1, GL_FALSE, glm::value_ptr(model_view_child_cube));
-        glUniformMatrix4fv(    normal_matrix_id, 1, GL_FALSE, glm::value_ptr(normal_child_cube    ));
-
-        cube.render();
-        /// Rotating cubes
-
         /// 1.5) Transparent objects
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glDepthMask(GL_FALSE);
-        
-        glm::mat4   model_view_transparent_cube(1);
 
-        model_view_transparent_cube = glm::translate(model_view_transparent_cube, glm::vec3(10.f, 0.f, 0.f));
-        model_view_transparent_cube = glm::scale(model_view_transparent_cube, glm::vec3(0.5f));
-        model_view_transparent_cube = glm::rotate(model_view_transparent_cube, angle * 5.f, glm::vec3(0.f, 1.f, 0.f));
-
-        model_view_transparent_cube = view * model_view_transparent_cube;
-
-        glm::mat4 normal_transparent_cube = glm::transpose(glm::inverse(model_view_transparent_cube));
-
-        glUniformMatrix4fv(model_view_matrix_id, 1, GL_FALSE, glm::value_ptr(model_view_transparent_cube));
-        glUniformMatrix4fv(    normal_matrix_id, 1, GL_FALSE, glm::value_ptr(normal_transparent_cube    ));
-
-        cube.render();  // transparent cube
+        transparentRoot->draw(view, program_id);
 
         glDepthMask(GL_TRUE);
         glDisable(GL_BLEND);

@@ -6,11 +6,13 @@
 #define CUBE_HEADER
 
     #include <glad/glad.h>
+    #include <glm.hpp>
+    #include "Mesh.hpp"
 
     namespace udit
     {
 
-        class Cube
+        class Cube : public Mesh
         {
         private:
 
@@ -19,39 +21,36 @@
             {
                 COORDINATES_VBO,
                 NORMALS_VBO,
+                UVS_VBO,
                 INDICES_IBO,
                 VBO_COUNT
             };
 
-            // Base cube data arrays:
+            // Base cube data arrays (4 vertices per face, so each face has its own normal and UVs):
             static const GLfloat coordinates[];
             static const GLfloat normals    [];
+            static const GLfloat uvs        [];
             static const GLubyte indices    [];
 
         private:
 
             GLuint vbo_ids[VBO_COUNT];      // Ids of the VBOs in use
             GLuint vao_id;                  // Cube VAO id
+            GLuint texture_id = 0;          // Diffuse texture (not owned by the cube)
 
         public:
 
             Cube();
            ~Cube();
 
-            void render ();
+            Cube(const Cube &) = delete;
+            Cube & operator = (const Cube &) = delete;
+
+            void set_texture (GLuint new_texture_id) { texture_id = new_texture_id; }
+
+            void draw (const glm::mat4 & modelMatrix, GLuint shaderProgram) const override;
 
         };
-        //struct IMesh { virtual void draw(const glm::mat4&, GLuint) = 0; };
-        //class Cube : public IMesh 
-        //{
-        //        void draw(const glm::mat4& modelMatrix, GLuint program) override {
-        //        GLint loc = glGetUniformLocation(program, "model_view_matrix");
-        //        glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(modelMatrix));
-        //        glBindVertexArray(vao_id);
-        //        glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_BYTE, 0);
-        //    }
-        //};
-
 
     }
 

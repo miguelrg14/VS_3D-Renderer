@@ -18,10 +18,8 @@
         public:
             virtual ~Mesh() = default;
 
-            /// Loads the model from a file
-            virtual void load(const std::string& mesh_file_path) = 0;
-
-            /// Draws the mesh with a model matrix and a shader
+            /// Draws the mesh. The node that owns it has already uploaded the
+            /// model-view and normal matrices to the shader.
             virtual void draw(const glm::mat4& modelMatrix, GLuint shaderProgram) const = 0;
         };
 

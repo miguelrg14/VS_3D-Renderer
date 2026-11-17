@@ -40,7 +40,7 @@
             AssimpMesh(const AssimpMesh &) = delete;
             AssimpMesh & operator = (const AssimpMesh &) = delete;
 
-            void load(const std::string& mesh_file_path) override;
+            void load(const std::string& mesh_file_path);
             void draw(const glm::mat4&   modelMatrix, GLuint shaderProgram) const override;
 
         private:

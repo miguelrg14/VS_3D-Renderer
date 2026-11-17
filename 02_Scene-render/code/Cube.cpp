@@ -63,6 +63,34 @@ namespace udit
          0.f, +1.f,  0.f,
     };
 
+    const GLfloat Cube::uvs[] =
+    {
+         0.f, 0.f,
+         1.f, 0.f,
+         1.f, 1.f,
+         0.f, 1.f,
+         0.f, 0.f,
+         1.f, 0.f,
+         1.f, 1.f,
+         0.f, 1.f,
+         0.f, 0.f,
+         1.f, 0.f,
+         1.f, 1.f,
+         0.f, 1.f,
+         0.f, 0.f,
+         1.f, 0.f,
+         1.f, 1.f,
+         0.f, 1.f,
+         0.f, 0.f,
+         1.f, 0.f,
+         1.f, 1.f,
+         0.f, 1.f,
+         0.f, 0.f,
+         1.f, 0.f,
+         1.f, 1.f,
+         0.f, 1.f,
+    };
+
     const GLubyte Cube::indices[] =
     {
          1,  0,  3,     // front
@@ -102,6 +130,13 @@ namespace udit
         glEnableVertexAttribArray (1);
         glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
+        // Upload the texture coordinates to a VBO and link them to the VAO:
+        glBindBuffer (GL_ARRAY_BUFFER, vbo_ids[UVS_VBO]);
+        glBufferData (GL_ARRAY_BUFFER, sizeof(uvs), uvs, GL_STATIC_DRAW);
+
+        glEnableVertexAttribArray (2);
+        glVertexAttribPointer (2, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
         // Upload the indices to an IBO:
         glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, vbo_ids[INDICES_IBO]);
         glBufferData (GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
@@ -116,11 +151,20 @@ namespace udit
         glDeleteBuffers      (VBO_COUNT, vbo_ids);
     }
 
-    void Cube::render ()
+    void Cube::draw (const glm::mat4 & , GLuint shaderProgram) const
     {
+        // Bind the cube texture on unit 0:
+        if (texture_id)
+        {
+            glActiveTexture (GL_TEXTURE0);
+            glBindTexture   (GL_TEXTURE_2D, texture_id);
+            glUniform1i     (glGetUniformLocation(shaderProgram, "sampler"), 0);
+        }
+
         // Bind the VAO holding the object data and draw its elements:
         glBindVertexArray (vao_id);
         glDrawElements    (GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_BYTE, 0);
+        glBindVertexArray (0);
     }
 
 }
