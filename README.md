@@ -10,13 +10,13 @@ The repository has two Visual Studio solutions that show the progression from ha
 | [`02_Scene-render`](docs/02-scene-render.md) | A navigable 3D scene: FPS camera, scene graph, Assimp model loading, textures, Blinn-Phong lighting, distance fog, cube-map skybox, GPU heightmap terrain, alpha blending and an off-screen framebuffer with a sepia post-process. |
 
 <p align="center">
-  <img src="docs/images/02-scene-render.gif" alt="02 · Scene render: skybox, heightmap terrain, imported models, fog and sepia post-process" width="800">
-  <br><em>02 · Scene render</em>
+  <img src="docs/images/01-geometric-figures.gif" alt="01 · Geometric figures: procedural wireframe plane, cone and cylinder" width="800">
+  <br><em>01 · Geometric figures</em>
 </p>
 
 <p align="center">
-  <img src="docs/images/01-geometric-figures.gif" alt="01 · Geometric figures: procedural wireframe plane, cone and cylinder" width="800">
-  <br><em>01 · Geometric figures</em>
+  <img src="docs/images/02-scene-render.gif" alt="02 · Scene render: skybox, heightmap terrain, imported models, fog and sepia post-process" width="800">
+  <br><em>02 · Scene render</em>
 </p>
 
 ---
@@ -63,8 +63,8 @@ All dependencies are **included in [`libraries/`](libraries/)** as headers and p
 
 ```text
 1. git clone https://github.com/miguelrg14/VS_3D-Renderer.git
-2. Open 02_Scene-render/project/UDIT-4º_PG_P2_Renderizar-escena.sln
-   (or 01_Geometric-figures/project/UDIT-4º_PG_P1_Figuras-geométricas.sln)
+2. Open 02_Scene-render/project/02_Scene-render.sln
+   (or 01_Geometric-figures/project/01_Geometric-figures.sln)
 3. Select the x64 platform (Debug or Release)
 4. Press F5
 ```

@@ -1,6 +1,6 @@
 
-// Este código es de dominio público
-// Miguel Rodríguez Gallego
+// This code is in the public domain
+// Miguel Rodriguez Gallego
 
 #include "opengl-recipes.hpp"
 
@@ -15,11 +15,11 @@ namespace udit
     {
         GLint succeeded = GL_FALSE;
 
-        // Se crean objetos para los shaders:
+        // Create the shader objects:
         GLuint   vertex_shader_id = glCreateShader(GL_VERTEX_SHADER);
         GLuint fragment_shader_id = glCreateShader(GL_FRAGMENT_SHADER);
 
-        // Se carga el código de los shaders:
+        // Load the shader source code:
         const char*    vertex_shaders_code[] = { vertex_shader_code.c_str() };
         const char*  fragment_shaders_code[] = { fragment_shader_code.c_str() };
         const GLint    vertex_shaders_size[] = { GLint(vertex_shader_code.size()) };
@@ -28,32 +28,32 @@ namespace udit
         glShaderSource(vertex_shader_id, 1, vertex_shaders_code, vertex_shaders_size);
         glShaderSource(fragment_shader_id, 1, fragment_shaders_code, fragment_shaders_size);
 
-        // Se compilan los shaders:
+        // Compile the shaders:
         glCompileShader(vertex_shader_id);
         glCompileShader(fragment_shader_id);
 
-        // Se comprueba que si la compilación ha tenido éxito:
+        // Check that compilation succeeded:
         glGetShaderiv(vertex_shader_id, GL_COMPILE_STATUS, &succeeded);
         if (!succeeded) show_compilation_error(vertex_shader_id);
 
         glGetShaderiv(fragment_shader_id, GL_COMPILE_STATUS, &succeeded);
         if (!succeeded) show_compilation_error(fragment_shader_id);
 
-        // Se crea un objeto para un programa:
+        // Create a program object:
         GLuint program_id = glCreateProgram();
 
-        // Se cargan los shaders compilados en el programa:
+        // Attach the compiled shaders to the program:
         glAttachShader(program_id, vertex_shader_id);
         glAttachShader(program_id, fragment_shader_id);
 
-        // Se linkan los shaders:
+        // Link the shaders:
         glLinkProgram(program_id);
 
-        // Se comprueba si el linkage ha tenido éxito:
+        // Check that linking succeeded:
         glGetProgramiv(program_id, GL_LINK_STATUS, &succeeded);
         if (!succeeded) show_linkage_error(program_id);
 
-        // Se liberan los shaders compilados una vez se han linkado:
+        // Release the compiled shaders once they are linked:
         glDeleteShader(vertex_shader_id);
         glDeleteShader(fragment_shader_id);
 
@@ -64,36 +64,36 @@ namespace udit
     {
         GLint succeeded = GL_FALSE;
 
-        // Se crean objetos para los shaders:
+        // Create the shader objects:
         GLuint   vertex_shader_id = glCreateShader(GL_VERTEX_SHADER);
         GLuint fragment_shader_id = glCreateShader(GL_FRAGMENT_SHADER);
 
-        // Se compilan los shaders:
+        // Compile the shaders:
         glCompileShader(vertex_shader_id);
         glCompileShader(fragment_shader_id);
 
-        // Se comprueba que si la compilación ha tenido éxito:
+        // Check that compilation succeeded:
         glGetShaderiv(vertex_shader_id, GL_COMPILE_STATUS, &succeeded);
         if (!succeeded) show_compilation_error(vertex_shader_id);
 
         glGetShaderiv(fragment_shader_id, GL_COMPILE_STATUS, &succeeded);
         if (!succeeded) show_compilation_error(fragment_shader_id);
 
-        // Se crea un objeto para un programa:
+        // Create a program object:
         GLuint program_id = glCreateProgram();
 
-        // Se cargan los shaders compilados en el programa:
+        // Attach the compiled shaders to the program:
         glAttachShader(program_id, vertex_shader_id);
         glAttachShader(program_id, fragment_shader_id);
 
-        // Se linkan los shaders:
+        // Link the shaders:
         glLinkProgram(program_id);
 
-        // Se comprueba si el linkage ha tenido éxito:
+        // Check that linking succeeded:
         glGetProgramiv(program_id, GL_LINK_STATUS, &succeeded);
         if (!succeeded) show_linkage_error(program_id);
 
-        // Se liberan los shaders compilados una vez se han linkado:
+        // Release the compiled shaders once they are linked:
         glDeleteShader(vertex_shader_id);
         glDeleteShader(fragment_shader_id);
 
@@ -111,7 +111,7 @@ namespace udit
 
             texture_id = SOIL_load_OGL_texture
             (
-                texture_path.c_str(),   // Ruta de la textura
+                texture_path.c_str(),   // Texture path
                 SOIL_LOAD_AUTO,
                 SOIL_CREATE_NEW_ID,
                 SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y
@@ -158,7 +158,7 @@ namespace udit
 
             texture_id = SOIL_load_OGL_texture
             (
-                texture_path.c_str(),   // Ruta de la textura
+                texture_path.c_str(),   // Texture path
                 SOIL_LOAD_AUTO,
                 SOIL_CREATE_NEW_ID,
                 SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y
@@ -234,7 +234,7 @@ namespace udit
         return -1;
     }
 
-    /// ------------------ ERRORES (Utilidades) -----------------
+    /// ------------------ Error utilities -----------------
 
     void show_compilation_error (GLuint shader_id)
     {

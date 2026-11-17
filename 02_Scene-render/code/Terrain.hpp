@@ -1,6 +1,6 @@
 
-// Este código es de dominio público
-// Miguel Rodríguez Gallego
+// This code is in the public domain
+// Miguel Rodriguez Gallego
 
 #ifndef GROUND_HEADER
 #define GROUND_HEADER
@@ -14,7 +14,7 @@
         {
         private:
 
-            // Índices para indexar el array vbo_ids:
+            // Indices into the vbo_ids array:
             enum
             {
                 COORDINATES_VBO,

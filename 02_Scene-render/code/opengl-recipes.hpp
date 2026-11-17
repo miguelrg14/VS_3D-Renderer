@@ -1,12 +1,13 @@
 
-// Este código es de dominio público
-// Miguel Rodríguez Gallego
+// This code is in the public domain
+// Miguel Rodriguez Gallego
 
 #pragma once
 
 #include "Color.hpp"
 #include "Color_Buffer.hpp"
 #include <glad/glad.h>
+#include <algorithm>
 #include <memory>
 #include <SOIL2.h>
 #include <string>
@@ -23,7 +24,7 @@ namespace udit
     template< typename COLOR_FORMAT >
     std::unique_ptr< Color_Buffer< COLOR_FORMAT > > load_image (const std::string & image_path)
     {
-        // Se carga la imagen del archivo usando SOIL2:
+        // Load the image file with SOIL2:
         int image_width = 0;
         int image_height = 0;
         int image_channels = 0;
@@ -34,15 +35,15 @@ namespace udit
             &image_width,
             &image_height,
             &image_channels,
-            SOIL_LOAD_RGBA              // Indica que nos devuelva los pixels en formato RGB32
-        );                              // al margen del formato usado en el archivo
+            SOIL_LOAD_RGBA              // Always return the pixels as RGBA32,
+        );                              // whatever the format of the file
 
-        // Si loaded_pixels no es nullptr, la imagen se ha podido cargar correctamente:
+        // A non-null loaded_pixels means the image was loaded:
         if (loaded_pixels)
         {
             auto image = std::make_unique< Color_Buffer<COLOR_FORMAT> >(image_width, image_height);
 
-            // Se copian los bytes de un buffer a otro directamente:
+            // Copy the bytes from one buffer to the other:
             std::copy_n
             (
                 loaded_pixels,
@@ -50,7 +51,7 @@ namespace udit
                 reinterpret_cast<uint8_t*>(image->colors())
             );
 
-            // Se libera la memoria que reservó SOIL2 para cargar la imagen:
+            // Free the memory SOIL2 allocated for the image:
             SOIL_free_image_data(loaded_pixels);
 
             return image;

@@ -1,4 +1,4 @@
-// Este código es de dominio público
+// This code is in the public domain
 // miguelrodriguezgallego1@gmail.com
 
 #ifndef CYLINDER_HEADER
@@ -21,7 +21,7 @@ namespace udit
             VBO_COUNT
         };
 
-        // Estos arrays se mantienen para init() clásico si se quiere
+        // These arrays are kept for the classic fixed-data init()
         static const GLfloat coordinates[];
         static const GLfloat colors[];
         static const GLuint  indices[];
@@ -36,9 +36,9 @@ namespace udit
         Cylinder();
         ~Cylinder();
 
-        void init();                // Carga buffers con datos fijos
-        void Subdivision(int slices); // Carga buffers con cilindro subdividido
-        void render();              // Dibuja el cilindro
+        void init();                // Fills the buffers with the fixed data
+        void Subdivision(int slices); // Fills the buffers with a subdivided cylinder
+        void render();              // Draws the cylinder
 
     };
 

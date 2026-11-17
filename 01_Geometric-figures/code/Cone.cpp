@@ -31,19 +31,19 @@ namespace udit
         const float height = 1.0f;
         const float PI2 = 6.2831853f;
 
-        // Índices:
+        // Indices:
         const GLuint apexIndex = 0;
         const GLuint baseCenterIndex = 1;
 
-        // Punta del cono
-        coords.push_back(0.0f); coords.push_back(height); coords.push_back(0.0f); // índice 0
+        // Cone apex
+        coords.push_back(0.0f); coords.push_back(height); coords.push_back(0.0f); // index 0
         cols.push_back(1.0f); cols.push_back(1.0f); cols.push_back(1.0f);
 
-        // Centro de la base
-        coords.push_back(0.0f); coords.push_back(0.0f); coords.push_back(0.0f); // índice 1
+        // Base centre
+        coords.push_back(0.0f); coords.push_back(0.0f); coords.push_back(0.0f); // index 1
         cols.push_back(0.5f); cols.push_back(0.5f); cols.push_back(0.5f);
 
-        // Coordenadas de los vértices de la base
+        // Base ring vertices
         for (int i = 0; i < slices; ++i)
         {
             float angle = PI2 * i / slices;
@@ -59,7 +59,7 @@ namespace udit
             cols.push_back(float(i) / slices);
         }
 
-        // Triángulos laterales
+        // Side triangles
         for (int i = 0; i < slices; ++i)
         {
             int next = (i + 1) % slices;
@@ -68,7 +68,7 @@ namespace udit
             inds.push_back(2 + i);
         }
 
-        // Triángulos de la base
+        // Base triangles
         for (int i = 0; i < slices; ++i)
         {
             int next = (i + 1) % slices;

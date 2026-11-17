@@ -1,6 +1,6 @@
 
-// Este código es de dominio público
-// Miguel Rodríguez Gallego
+// This code is in the public domain
+// Miguel Rodriguez Gallego
 
 #ifndef SKYBOX_HEADER
 #define SKYBOX_HEADER
@@ -21,8 +21,8 @@
             static const std::string   vertex_shader_code;
             static const std::string fragment_shader_code;
 
-            GLuint       vbo_id;                                // Id del VBO de las coordenadas
-            GLuint       vao_id;                                // Id del VAO del cubo
+            GLuint       vbo_id;                                // Coordinates VBO id
+            GLuint       vao_id;                                // Cube VAO id
 
             GLuint       shader_program_id;
 

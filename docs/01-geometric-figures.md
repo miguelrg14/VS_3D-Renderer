@@ -2,7 +2,7 @@
 
 The first assignment: building meshes **procedurally on the CPU**, uploading them into OpenGL buffers and drawing them with a minimal shader. No textures or lighting, just geometry, indices and per-vertex colour.
 
-Solution: `01_Geometric-figures/project/UDIT-4º_PG_P1_Figuras-geométricas.sln`
+Solution: `01_Geometric-figures/project/01_Geometric-figures.sln`
 
 ![Procedural wireframe plane, cone and cylinder](images/01-geometric-figures.gif)
 

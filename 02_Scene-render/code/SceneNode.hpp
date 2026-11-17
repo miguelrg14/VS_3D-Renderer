@@ -1,5 +1,5 @@
-// Este código es de dominio público
-// Miguel Rodríguez Gallego
+// This code is in the public domain
+// Miguel Rodriguez Gallego
 
 #pragma once
 
@@ -8,7 +8,7 @@
 #include <glm.hpp>                          // vec3, mat4
 #include <gtc/type_ptr.hpp>                // value_ptr
 #include <glad/glad.h>                     // GLuint
-#include "Mesh.hpp"                         // Definición completa de Mesh
+#include "Mesh.hpp"                         // Full Mesh definition
 
 namespace udit
 {
@@ -16,28 +16,28 @@ namespace udit
     {
     public:
         glm::mat4 localTransform = glm::mat4(1.0f);
-        std::vector<std::shared_ptr<Mesh>> meshes;         // Mallas en este nodo
-        std::vector<std::unique_ptr<SceneNode>> children;  // Hijos en la jerarquía
+        std::vector<std::shared_ptr<Mesh>> meshes;         // Meshes in this node
+        std::vector<std::unique_ptr<SceneNode>> children;  // Children in the hierarchy
 
-        // Añade una malla a este nodo
+        // Adds a mesh to this node
         void addMesh(const std::shared_ptr<Mesh>& m)
         {
             meshes.push_back(m);
         }
 
-        // Añade un nodo hijo a este nodo
+        // Adds a child node
         void addChild(std::unique_ptr<SceneNode> child)
         {
             children.push_back(std::move(child));
         }
 
-        // Recorrido y dibujo recursivo
+        // Recursive traversal and drawing
         void draw(const glm::mat4& parentTransform, GLuint shaderProgram)
         {
-            // 1) Calculamos transformación global
+            // 1) Compute the global transform
             glm::mat4 globalTransform = parentTransform * localTransform;
 
-            // 2) Subimos uniforms del shader
+            // 2) Upload the shader uniforms
             GLint mvLoc = glGetUniformLocation(shaderProgram, "model_view_matrix");
             glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(globalTransform));
 
@@ -45,13 +45,13 @@ namespace udit
             GLint nmLoc = glGetUniformLocation(shaderProgram, "normal_matrix");
             glUniformMatrix4fv(nmLoc, 1, GL_FALSE, glm::value_ptr(normalMat));
 
-            // 3) Dibujamos cada malla
+            // 3) Draw every mesh
             for (auto& m : meshes)
             {
                 m->draw(globalTransform, shaderProgram);
             }
 
-            // 4) Recorremos y dibujamos hijos
+            // 4) Draw the children
             for (auto& child : children)
             {
                 child->draw(globalTransform, shaderProgram);

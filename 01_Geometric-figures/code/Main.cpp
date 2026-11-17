@@ -1,5 +1,5 @@
 
-// Este código es de dominio público
+// This code is in the public domain
 // angel.rodriguez@udit.es
 
 #include "Scene.hpp"
@@ -29,7 +29,7 @@ int main (int , char * [])
 
     do
     {
-        // Se procesan los eventos acumulados:
+        // Process pending events:
         SDL_Event event;
 
         while (SDL_PollEvent (&event) > 0)
@@ -40,13 +40,13 @@ int main (int , char * [])
             }
         }
 
-        // Se actualiza la escena:
+        // Update the scene:
         scene.update ();
 
-        // Se redibuja la escena:
+        // Render the scene:
         scene.render ();
 
-        // Se actualiza el contenido de la ventana:
+        // Present the frame:
         window.swap_buffers ();
     }
     while (not exit);

@@ -1,6 +1,6 @@
 
-// Este código es de dominio público
-// Miguel Rodríguez Gallego
+// This code is in the public domain
+// Miguel Rodriguez Gallego
 
 #include "Cube.hpp"
 
@@ -81,28 +81,28 @@ namespace udit
 
     Cube::Cube()
     {
-        // Se generan índices para los VBOs del cubo:
+        // Generate the cube VBO ids:
         glGenBuffers (VBO_COUNT, vbo_ids);
         glGenVertexArrays (1, &vao_id);
 
-        // Se activa el VAO del cubo para configurarlo:
+        // Bind the cube VAO to configure it:
         glBindVertexArray (vao_id);
 
-        // Se suben a un VBO los datos de coordenadas y se vinculan al VAO:
+        // Upload the coordinates to a VBO and link them to the VAO:
         glBindBuffer (GL_ARRAY_BUFFER, vbo_ids[COORDINATES_VBO]);
         glBufferData (GL_ARRAY_BUFFER, sizeof(coordinates), coordinates, GL_STATIC_DRAW);
 
         glEnableVertexAttribArray (0);
         glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-        // Se suben a un VBO los datos de normales y se vinculan al VAO:
+        // Upload the normals to a VBO and link them to the VAO:
         glBindBuffer (GL_ARRAY_BUFFER, vbo_ids[NORMALS_VBO]);
         glBufferData (GL_ARRAY_BUFFER, sizeof(normals), normals, GL_STATIC_DRAW);
 
         glEnableVertexAttribArray (1);
         glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-        // Se suben a un IBO los datos de índices:
+        // Upload the indices to an IBO:
         glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, vbo_ids[INDICES_IBO]);
         glBufferData (GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
@@ -111,14 +111,14 @@ namespace udit
 
     Cube::~Cube()
     {
-        // Se liberan los VBOs y el VAO usados:
+        // Release the VBOs and the VAO:
         glDeleteVertexArrays (1, &vao_id);
         glDeleteBuffers      (VBO_COUNT, vbo_ids);
     }
 
     void Cube::render ()
     {
-        // Se selecciona el VAO que contiene los datos del objeto y se dibujan sus elementos:
+        // Bind the VAO holding the object data and draw its elements:
         glBindVertexArray (vao_id);
         glDrawElements    (GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_BYTE, 0);
     }

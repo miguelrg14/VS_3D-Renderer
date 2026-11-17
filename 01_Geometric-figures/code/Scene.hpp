@@ -1,5 +1,5 @@
 
-// Este código es de dominio público
+// This code is in the public domain
 // angel.rodriguez@udit.es
 
 #pragma once

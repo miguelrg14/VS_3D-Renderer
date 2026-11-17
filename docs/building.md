@@ -17,8 +17,8 @@ The prebuilt libraries in `libraries/` are **static x64 MSVC** builds, so only t
    git clone https://github.com/miguelrg14/VS_3D-Renderer.git
    ```
 2. Open the solution you want:
-   - `01_Geometric-figures/project/UDIT-4º_PG_P1_Figuras-geométricas.sln`
-   - `02_Scene-render/project/UDIT-4º_PG_P2_Renderizar-escena.sln`
+   - `01_Geometric-figures/project/01_Geometric-figures.sln`
+   - `02_Scene-render/project/02_Scene-render.sln`
 3. Select **x64** and **Debug** or **Release**.
 4. Build and run (F5).
 
@@ -42,7 +42,7 @@ Project 02 loads every asset with a path relative to the **working directory**:
 ```text
 ../assets/sky-cube-map-0.png … sky-cube-map-5.png
 ../assets/height-map.png
-../assets/Terreno.obj, Painting.obj, Plant.obj, Umbrella.obj  (+ their textures)
+../assets/Ground.obj, Painting.obj, Plant.obj, Umbrella.obj  (+ their textures)
 ```
 
 Visual Studio's default working directory is `$(ProjectDir)`, which is `02_Scene-render/project/`, so `../assets` resolves correctly when you run from the IDE. To run the built `.exe` on its own, launch it from a folder that sits next to `assets/`, or copy `assets/` one level above the executable.
@@ -51,7 +51,7 @@ Visual Studio's default working directory is `$(ProjectDir)`, which is `02_Scene
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| Unhandled `std::runtime_error: No se pudo cargar mesh` on startup | The `.obj` models are missing (see [known-issues.md](known-issues.md#obj-models-are-not-in-the-repository)) or the working directory is wrong | Add the models to `02_Scene-render/assets/` and run from the IDE |
+| Unhandled `std::runtime_error: Could not load mesh` on startup | A `.obj` model is missing from `assets/` or the working directory is wrong | Check the models are in `02_Scene-render/assets/` and run from the IDE |
 | Black skybox or textures | Images not found relative to the working directory | Check *Project → Properties → Debugging → Working Directory* = `$(ProjectDir)` |
 | `LNK2038` / `LNK1112` link errors | Building Win32, or a different toolset | Use **x64** and toolset **v143** |
 | Very pixelated output | Intended: the scene renders into a 256×256 framebuffer | Raise `framebuffer_width/height` in `Scene.hpp` |

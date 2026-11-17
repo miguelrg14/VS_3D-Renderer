@@ -1,6 +1,6 @@
 
-// Este código es de dominio público
-// Miguel Rodríguez Gallego
+// This code is in the public domain
+// Miguel Rodriguez Gallego
 
 #ifndef TEXTURE_CUBE_HEADER
 #define TEXTURE_CUBE_HEADER

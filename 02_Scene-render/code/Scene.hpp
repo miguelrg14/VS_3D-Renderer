@@ -1,6 +1,6 @@
 
-// Este código es de dominio público
-// Miguel Rodríguez Gallego
+// This code is in the public domain
+// Miguel Rodriguez Gallego
 
 #pragma once
 
@@ -38,7 +38,7 @@ namespace udit
             VBO_COUNT
         };
 
-        // Postprocesado: Reescalado de la pantalla con framebuffer
+        // Post-processing: off-screen framebuffer resolution
         GLsizei  framebuffer_width = 256; // 256; // 1024;
         GLsizei framebuffer_height = 256; // 256; // 1024;
 
@@ -68,23 +68,23 @@ namespace udit
         GLuint  terrain_projection_matrix_id;
         GLuint  terrain_model_view_matrix_id;
 
-        /// Terreno (Mallas de elevación)
+        /// Terrain (height-mapped grid)
         Terrain terrain;
 
         Cube  cube;
 
         float angle;
 
-        /// Cargar modelos 3D
+        /// 3D model loading
         GLuint  vao_model, vbo_model, ebo_model;
         GLsizei index_count = 0;
 
-        /// Color aleatorio
+        /// Random colour
         GLuint  vbo_ids[VBO_COUNT];
         GLuint              vao_id;
         GLsizei  number_of_indices;
 
-        /// Cargar texturas
+        /// Texture loading
         GLuint          program_id;
         GLuint      texture_id = 0;
         GLuint use_vertex_color_id;
@@ -93,7 +93,7 @@ namespace udit
 
         bool      there_is_texture;
 
-        /// Postprocesado
+        /// Post-processing
         GLuint     framebuffer_quad_vao;
         GLuint framebuffer_quad_vbos[2];
 
@@ -102,7 +102,7 @@ namespace udit
 
     public:
 
-        /// Cámara
+        /// Camera
         Camera camera;
         Skybox skybox;
 
@@ -116,7 +116,7 @@ namespace udit
 
     private:
 
-        /// Postprocesado
+        /// Post-processing
         void   build_framebuffer();
         void   render_framebuffer();
 

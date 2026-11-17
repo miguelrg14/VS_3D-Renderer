@@ -5,11 +5,11 @@
 
 namespace udit
 {
-    //Valores fijos, los mantenemos para init() clásico
-    // Coordenadas: 6 puntos base, 6 puntos arriba, 2 centros
+    // Fixed values, kept for the classic init()
+    // Coordinates: 6 bottom points, 6 top points, 2 centres
     const GLfloat Cylinder::coordinates[] =
     {
-        // Base inferior (y = 0)
+        // Bottom ring (y = 0)
          1.0f, 0.0f,  0.0f,
          0.5f, 0.0f,  0.866f,
         -0.5f, 0.0f,  0.866f,
@@ -17,7 +17,7 @@ namespace udit
         -0.5f, 0.0f, -0.866f,
          0.5f, 0.0f, -0.866f,
 
-         // Base superior (y = 1)
+         // Top ring (y = 1)
           1.0f, 1.0f,  0.0f,
           0.5f, 1.0f,  0.866f,
          -0.5f, 1.0f,  0.866f,
@@ -25,17 +25,17 @@ namespace udit
          -0.5f, 1.0f, -0.866f,
           0.5f, 1.0f, -0.866f,
 
-          // Centro base inferior
+          // Bottom cap centre
            0.0f, 0.0f,  0.0f,
 
-           // Centro base superior
+           // Top cap centre
             0.0f, 1.0f,  0.0f
     };
 
-    // Colores simples
+    // Plain colours
     const GLfloat Cylinder::colors[] =
     {
-        // Base inferior
+        // Bottom ring
         0.7f, 0.2f, 0.2f,
         0.7f, 0.2f, 0.2f,
         0.7f, 0.2f, 0.2f,
@@ -43,7 +43,7 @@ namespace udit
         0.7f, 0.2f, 0.2f,
         0.7f, 0.2f, 0.2f,
 
-        // Base superior
+        // Top ring
         0.2f, 0.7f, 0.2f,
         0.2f, 0.7f, 0.2f,
         0.2f, 0.7f, 0.2f,
@@ -51,16 +51,16 @@ namespace udit
         0.2f, 0.7f, 0.2f,
         0.2f, 0.7f, 0.2f,
 
-        // Centro base inferior
+        // Bottom cap centre
         1.0f, 1.0f, 0.0f,
 
-        // Centro base superior
+        // Top cap centre
         1.0f, 1.0f, 0.0f
     };
 
     const GLuint Cylinder::indices[] =
     {
-        // LATERALES (triángulos en sentido antihorario)
+        // SIDES (counter-clockwise triangles)
         6, 1, 0,
         7, 1, 6,
 
@@ -79,7 +79,7 @@ namespace udit
         11, 0, 5,
         6, 0, 11,
 
-        // BASE INFERIOR (sentido antihorario desde abajo)
+        // BOTTOM CAP (counter-clockwise seen from below)
         12, 0, 1,
         12, 1, 2,
         12, 2, 3,
@@ -87,7 +87,7 @@ namespace udit
         12, 4, 5,
         12, 5, 0,
 
-        // BASE SUPERIOR (sentido antihorario desde arriba)
+        // TOP CAP (counter-clockwise seen from above)
         13, 7, 6,
         13, 8, 7,
         13, 9, 8,
@@ -100,7 +100,7 @@ namespace udit
     {
         glGenVertexArrays(1, &vao_id);
         glGenBuffers(VBO_COUNT, vbo_ids);
-        init(); // Carga con datos fijos al inicio
+        init(); // Start with the fixed data
 
         Subdivision(6);
 
@@ -137,7 +137,7 @@ namespace udit
 
     void Cylinder::Subdivision(int slices)
     {
-        if (slices < 3) slices = 3; // mínimo 3 vértices para base
+        if (slices < 3) slices = 3; // a cap needs at least 3 vertices
 
         std::vector<GLfloat> coords;
         std::vector<GLfloat> cols;
@@ -147,11 +147,11 @@ namespace udit
         const float height = 1.0f;
         const float PI2 = 6.2831853f;
 
-        // Índices para los centros
+        // Indices of the cap centres
         const GLuint baseCenterIndex = 2 * slices;
         const GLuint topCenterIndex = 2 * slices + 1;
 
-        // Generar vértices de la base inferior
+        // Bottom ring vertices
         for (int i = 0; i < slices; ++i)
         {
             float angle = PI2 * i / slices;
@@ -162,13 +162,13 @@ namespace udit
             coords.push_back(0.0f);
             coords.push_back(z);
 
-            // Color base inferior (rojo)
+            // Bottom ring colour (red)
             cols.push_back(0.7f);
             cols.push_back(0.2f);
             cols.push_back(0.2f);
         }
 
-        // Generar vértices de la base superior
+        // Top ring vertices
         for (int i = 0; i < slices; ++i)
         {
             float angle = PI2 * i / slices;
@@ -179,23 +179,23 @@ namespace udit
             coords.push_back(height);
             coords.push_back(z);
 
-            // Color base superior (verde)
+            // Top ring colour (green)
             cols.push_back(0.2f);
             cols.push_back(0.7f);
             cols.push_back(0.2f);
         }
 
-        // Centro base inferior
+        // Bottom cap centre
         coords.push_back(0.0f); coords.push_back(0.0f); coords.push_back(0.0f);
-        cols.push_back(1.0f); cols.push_back(1.0f); cols.push_back(0.0f); // amarillo
+        cols.push_back(1.0f); cols.push_back(1.0f); cols.push_back(0.0f); // yellow
 
-        // Centro base superior
+        // Top cap centre
         coords.push_back(0.0f); coords.push_back(height); coords.push_back(0.0f);
-        cols.push_back(1.0f); cols.push_back(1.0f); cols.push_back(0.0f); // amarillo
+        cols.push_back(1.0f); cols.push_back(1.0f); cols.push_back(0.0f); // yellow
 
-        // Crear índices
+        // Build the indices
 
-        // Lados (caras laterales)
+        // Sides
         for (int i = 0; i < slices; ++i)
         {
             int next = (i + 1) % slices;
@@ -205,7 +205,7 @@ namespace udit
             GLuint top_current = i + slices;
             GLuint top_next = next + slices;
 
-            // Dos triángulos por cara lateral
+            // Two triangles per side quad
             inds.push_back(top_current);
             inds.push_back(bottom_next);
             inds.push_back(bottom_current);
@@ -215,7 +215,7 @@ namespace udit
             inds.push_back(top_current);
         }
 
-        // Base inferior (triángulos fan desde el centro)
+        // Bottom cap (triangle fan from the centre)
         for (int i = 0; i < slices; ++i)
         {
             int next = (i + 1) % slices;
@@ -224,7 +224,7 @@ namespace udit
             inds.push_back(next);
         }
 
-        // Base superior (triángulos fan desde el centro)
+        // Top cap (triangle fan from the centre)
         for (int i = 0; i < slices; ++i)
         {
             int next = (i + 1) % slices;
@@ -235,7 +235,7 @@ namespace udit
 
         indexCount = inds.size();
 
-        // Subir datos a OpenGL
+        // Upload the data to OpenGL
         glBindVertexArray(vao_id);
 
         glBindBuffer(GL_ARRAY_BUFFER, vbo_ids[COORDINATES_VBO]);

@@ -1,5 +1,5 @@
 
-// Este código es de dominio público
+// This code is in the public domain
 // angel.rodriguez@udit.es
 
 #ifndef CUBE_HEADER
@@ -14,7 +14,7 @@
         {
         private:
 
-            // Índices para indexar el array vbo_ids:
+            // Indices into the vbo_ids array:
             enum
             {
                 COORDINATES_VBO,
@@ -23,15 +23,15 @@
                 VBO_COUNT
             };
 
-            // Arrays de datos del cubo base:
+            // Base cube data arrays:
             static const GLfloat coordinates[];
             static const GLfloat colors     [];
             static const GLubyte indices    [];
 
         private:
 
-            GLuint vbo_ids[VBO_COUNT];      // Ids de los VBOs que se usan
-            GLuint vao_id;                  // Id del VAO del cubo
+            GLuint vbo_ids[VBO_COUNT];      // Ids of the VBOs in use
+            GLuint vao_id;                  // Cube VAO id
 
         public:
 

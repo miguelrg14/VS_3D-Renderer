@@ -1,6 +1,6 @@
 
-// Este código es de dominio público
-// Miguel Rodríguez Gallego
+// This code is in the public domain
+// Miguel Rodriguez Gallego
 
 #include "Terrain.hpp"
 #include <glm.hpp>
@@ -17,7 +17,7 @@ namespace udit
     {
         number_of_vertices = x_slices * z_slices;
 
-        vector< half > coordinates(number_of_vertices * 2);     // Sólo es necesario guardar las coordenadas X y Z
+        vector< half > coordinates(number_of_vertices * 2);     // Only X and Z are stored, Y comes from the height map
         vector< half > texture_uvs(number_of_vertices * 2);
 
         float x = -width * .5f;
@@ -42,25 +42,25 @@ namespace udit
                 texture_uvs[coordinate_index + 1] = half(v);
             }
 
-            x += x_step = -x_step;                              // Se invierte el sentido para hacer un zigzag
+            x += x_step = -x_step;                              // Reverse direction to walk the grid in a zig-zag
             u += u_step = -u_step;
         }
 
-        // Se crean el VAO y los VBOs:
+        // Create the VAO and the VBOs:
         glGenVertexArrays (1, &vao_id);
         glGenBuffers (VBO_COUNT, vbo_ids);
 
-        // Se activa el VAO para configurarlo:
+        // Bind the VAO to configure it:
         glBindVertexArray (vao_id);
 
-        // Se suben a un VBO los datos de coordenadas y se vinculan al VAO:
+        // Upload the coordinates to a VBO and link them to the VAO:
         glBindBuffer (GL_ARRAY_BUFFER, vbo_ids[COORDINATES_VBO]);
         glBufferData (GL_ARRAY_BUFFER, coordinates.size () * sizeof(half), coordinates.data (), GL_STATIC_DRAW);
 
         glEnableVertexAttribArray (0);
         glVertexAttribPointer (0, 2, GL_HALF_FLOAT, GL_FALSE, 0, 0);
 
-        // Se suben a un VBO los datos de coordenadas de textura y se vinculan al VAO:
+        // Upload the texture coordinates to a VBO and link them to the VAO:
         glBindBuffer (GL_ARRAY_BUFFER, vbo_ids[TEXTURE_UVS_VBO]);
         glBufferData (GL_ARRAY_BUFFER, texture_uvs.size () * sizeof(half), texture_uvs.data (), GL_STATIC_DRAW);
 
@@ -76,8 +76,8 @@ namespace udit
 
     void Terrain::render ()
     {
-        // Se selecciona el VAO que contiene los datos del objeto y se dibujan sus vértices
-        // conectándolos con líneas:
+        // Bind the VAO holding the object data and draw its vertices,
+        // joined with lines:
         glBindVertexArray (vao_id);
         glDrawArrays (GL_LINE_STRIP, 0, number_of_vertices);
     }

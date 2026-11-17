@@ -1,5 +1,5 @@
 
-// Este código es de dominio público
+// This code is in the public domain
 // miguelrodriguezgallego1@gmail.com
 
 #ifndef PLANE_HEADER
@@ -14,7 +14,7 @@
         {
         private:
 
-            // Índices para indexar el array vbo_ids:
+            // Indices into the vbo_ids array:
             enum
             {
                 COORDINATES_VBO,
@@ -23,7 +23,7 @@
                 VBO_COUNT
             };
 
-            // Arrays de datos del plano base:
+            // Base plane data arrays:
             static const GLfloat    coordinates [];
             static const GLfloat    colors      [];
             static const GLuint     indices     [];
@@ -32,8 +32,8 @@
 
         private:
 
-            GLuint vbo_ids[VBO_COUNT];      // Ids de los VBOs que se usan
-            GLuint vao_id;                  // Id del VAO del plano
+            GLuint vbo_ids[VBO_COUNT];      // Ids of the VBOs in use
+            GLuint vao_id;                  // Plane VAO id
 
         public:
 

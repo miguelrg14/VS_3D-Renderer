@@ -1,6 +1,6 @@
 
-// Este código es de dominio público
-// Miguel Rodríguez Gallego
+// This code is in the public domain
+// Miguel Rodriguez Gallego
 
 #ifndef MESH_HEADER
 #define MESH_HEADER
@@ -18,10 +18,10 @@
         public:
             virtual ~Mesh() = default;
 
-            /// Carga el modelo desde fichero
+            /// Loads the model from a file
             virtual void load(const std::string& mesh_file_path) = 0;
 
-            /// Dibuja la malla con la matriz de modelo y un shader
+            /// Draws the mesh with a model matrix and a shader
             virtual void draw(const glm::mat4& modelMatrix, GLuint shaderProgram) const = 0;
         };
 

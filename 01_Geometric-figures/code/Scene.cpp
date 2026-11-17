@@ -1,5 +1,5 @@
 
-// Este código es de dominio público
+// This code is in the public domain
 // angel.rodriguez@udit.es
 
 #pragma once
@@ -52,12 +52,12 @@ namespace udit
     :
         angle(0)
     {
-        // Se establece la configuración básica:
+        // Basic render state:
         glEnable     (GL_CULL_FACE);
         glDisable    (GL_DEPTH_TEST);
         glClearColor (.1f, .1f, .1f, 1.f);
 
-        // Se compilan y se activan los shaders:
+        // Compile and activate the shaders:
         GLuint program_id = compile_shaders ();
 
         glUseProgram (program_id);
@@ -70,15 +70,15 @@ namespace udit
 
     void Scene::update ()
     {
-        angle += 0.01f; // Rotación de la escena en tiempo real
+        angle += 0.01f; // Real-time scene rotation
     }
 
     void Scene::render ()
     {
         glClear (GL_COLOR_BUFFER_BIT);
 
-        /// Cubo ///
-        //// Se rota el cubo y se empuja hacia el fondo:
+        /// Cube ///
+        //// Rotate the cube and push it back:
         //glm::mat4 model_view_matrix(1);
 
         //model_view_matrix = glm::translate (model_view_matrix, glm::vec3(-2.f, 0.f, -4.f));
@@ -86,11 +86,11 @@ namespace udit
 
         //glUniformMatrix4fv (model_view_matrix_id, 1, GL_FALSE, glm::value_ptr(model_view_matrix));
 
-        //// Se dibuja el cubo:
+        //// Draw the cube:
         //cube.render();
 
-        /// Plano ///
-        // Se rota el plano y se empuja hacia el fondo:
+        /// Plane ///
+        // Rotate the plane and push it back:
         glm::mat4 model_view_matrix(1);
 
         model_view_matrix = glm::translate(model_view_matrix, glm::vec3(0.0f, -2.5f, -4.f)    );
@@ -98,11 +98,11 @@ namespace udit
 
         glUniformMatrix4fv(model_view_matrix_id, 1, GL_FALSE, glm::value_ptr(model_view_matrix));
 
-        // Se dibuja el plano:
+        // Draw the plane:
         plane.render ();
 
-        /// Cono ///
-        // Se rota el cono y se empuja hacia el fondo:
+        /// Cone ///
+        // Rotate the cone and push it back:
         glm::mat4 model_view_matrix2(1);
 
         model_view_matrix2 = glm::translate(model_view_matrix2, glm::vec3(-1.2f, -2.5f, -7.f)   );
@@ -110,11 +110,11 @@ namespace udit
 
         glUniformMatrix4fv(model_view_matrix_id, 1, GL_FALSE, glm::value_ptr(model_view_matrix2));
 
-        // Se dibuja el cono:
+        // Draw the cone:
         cone.render();
 
-        /// Cilindro ///
-        // Se rota el cono y se empuja hacia el fondo:
+        /// Cylinder ///
+        // Rotate the cylinder and push it back:
         glm::mat4 model_view_matrix3(1);
 
         model_view_matrix3 = glm::translate(model_view_matrix3, glm::vec3(1.2f, -2.5f, -7.f)    );
@@ -122,12 +122,12 @@ namespace udit
 
         glUniformMatrix4fv(model_view_matrix_id, 1, GL_FALSE, glm::value_ptr(model_view_matrix3));
 
-        // Se dibuja el cono:
+        // Draw the cylinder:
         cylinder.render();
     }
 
     /// <summary>
-    ///  OpenGL adapta el campo visual horizontal/vertical según la nueva forma de la ventana si se cambia su tamaño
+    ///  Adapts the projection and viewport to the new window size
     /// </summary>
     /// <param name="width"></param>
     /// <param name="height"></param>
@@ -142,14 +142,14 @@ namespace udit
 
     GLuint Scene::compile_shaders ()
     {
-        /// Compilar los sombreadores individuales
+        /// Compile each shader stage
         GLint succeeded = GL_FALSE;
 
-        // Se crean objetos para los sombreadores:
+        // Create the shader objects:
         GLuint   vertex_shader_id = glCreateShader (GL_VERTEX_SHADER  );
         GLuint fragment_shader_id = glCreateShader (GL_FRAGMENT_SHADER);
 
-        // Se carga el código de los sombreadores:
+        // Load the shader source code:
         const char *   vertex_shaders_code[] = {          vertex_shader_code.c_str () };
         const char * fragment_shaders_code[] = {        fragment_shader_code.c_str () };
         const GLint    vertex_shaders_size[] = { (GLint)  vertex_shader_code.size  () };
@@ -158,12 +158,12 @@ namespace udit
         glShaderSource  (  vertex_shader_id, 1,   vertex_shaders_code,   vertex_shaders_size);
         glShaderSource  (fragment_shader_id, 1, fragment_shaders_code, fragment_shaders_size);
 
-        // Se compilan los sombreadores:
+        // Compile the shaders:
         glCompileShader (  vertex_shader_id);
         glCompileShader (fragment_shader_id);
 
         /// ---------------------------------------------------
-        // Se comprueba si la compilación ha tenido éxito:
+        // Check that compilation succeeded:
         glGetShaderiv   (  vertex_shader_id, GL_COMPILE_STATUS, &succeeded);
         if (!succeeded) show_compilation_error (  vertex_shader_id);
 
@@ -171,22 +171,22 @@ namespace udit
         if (!succeeded) show_compilation_error (fragment_shader_id);
         /// ---------------------------------------------------
 
-        /// Combinar los sombreadores compilados anteriormente en un programa para usarlos en la GPU
-        // Se crea un objeto para un programa:
+        /// Link the compiled shaders into a GPU program
+        // Create a program object:
         GLuint program_id = glCreateProgram ();
 
-        // Se cargan los sombreadores compilados en el programa:
+        // Attach the compiled shaders to the program:
         glAttachShader  (program_id,   vertex_shader_id);
         glAttachShader  (program_id, fragment_shader_id);
 
-        // Se enlazan los sombreadores:
+        // Link the shaders:
         glLinkProgram   (program_id);
 
-        // Se comprueba si el enlace ha tenido éxito:
+        // Check that linking succeeded:
         glGetProgramiv  (program_id, GL_LINK_STATUS, &succeeded);
         if (!succeeded) show_linkage_error (program_id);
 
-        // Se liberan los sombreadores compilados una vez se han enlazado:
+        // Release the compiled shaders once they are linked:
         glDeleteShader (  vertex_shader_id);
         glDeleteShader (fragment_shader_id);
 

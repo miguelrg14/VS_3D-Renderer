@@ -4,15 +4,8 @@ An honest list of current limitations, ordered roughly by impact. Each one point
 
 ## Bugs
 
-### `.obj` models are not in the repository
-`.gitignore` contains `*.obj` (meant for MSVC object files), so `Terreno.obj`, `Painting.obj`, `Plant.obj` and `Umbrella.obj` were never committed. `AssimpMesh::load` throws when a file is missing and nothing catches the exception, so **project 02 crashes on a fresh clone**.
-
-**Fix:** add an exception to `.gitignore` and commit the models:
-```gitignore
-*.obj
-!02_Scene-render/assets/*.obj
-```
-Optionally, catch the exception in `Scene::load_mesh` and skip the model, so one missing asset doesn't stop the whole scene.
+### A missing model stops the whole scene
+`AssimpMesh::load` throws when a file can't be loaded and nothing catches the exception, so one missing or broken `.obj` crashes project 02 on startup. Catching it in `Scene::load_mesh` and skipping that model would keep the rest of the scene running.
 
 ### `Window` move-assignment has no return value
 `Window::operator=(Window&&)` in `Window.hpp` (both projects) is missing `return *this;`. That's undefined behaviour if it's ever used.
@@ -47,7 +40,7 @@ The build depends on Visual Studio and on prebuilt Windows x64 libraries. A `CMa
 
 ## Roadmap ideas
 
-- [ ] Commit the `.obj` models and fix `.gitignore`
+- [ ] Skip missing models instead of crashing
 - [ ] Per-fragment lighting and several lights (point and directional)
 - [ ] Normal mapping
 - [ ] Shadow mapping

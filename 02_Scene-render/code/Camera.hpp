@@ -1,6 +1,6 @@
 
-// Este código es de dominio público
-// Miguel Rodríguez Gallego
+// This code is in the public domain
+// Miguel Rodriguez Gallego
 
 #ifndef CAMERA_HEADER
 #define CAMERA_HEADER
@@ -31,11 +31,11 @@
 
             Matrix44 projection_matrix;
 
-            float movementSpeed = 5.f;   // unidades/segundo
-            float mouseSensitivity = 0.1f;  // grados/pixel
+            float movementSpeed = 5.f;   // units per second
+            float mouseSensitivity = 0.1f;  // degrees per pixel
 
-            float yaw;    // ángulo horizontal, grados
-            float pitch;  // ángulo vertical, grados
+            float yaw;    // horizontal angle, degrees
+            float pitch;  // vertical angle, degrees
 
         public:
 
@@ -79,18 +79,18 @@
 
             void reset (float new_fov, float new_near_z, float new_far_z, float new_ratio)
             {
-                // 1) Orientación por defecto
+                // 1) Default orientation
                 yaw = -90.0f;
                 pitch = 0.0f;
-                // 2) Proyección
+                // 2) Projection
                 set_fov(new_fov);
                 set_near_z(new_near_z);
                 set_far_z(new_far_z);
                 set_ratio(new_ratio);
-                // 3) Posición y reconstrucción del target
+                // 3) Position, then rebuild the target
                 set_location(0.f, 0.f, 0.f);
-                updateCameraVectors();       // target = location + dirección calculada
-                // 4) Matriz de proyección
+                updateCameraVectors();       // target = location + computed direction
+                // 4) Projection matrix
                 calculate_projection_matrix();
             }
 
@@ -129,7 +129,7 @@
 
         private:
 
-            // Reconstruye 'target' desde yaw/pitch
+            // Rebuilds 'target' from yaw/pitch
             void updateCameraVectors() 
             {
                 glm::vec3 front;

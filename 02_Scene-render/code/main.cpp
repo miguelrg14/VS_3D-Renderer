@@ -1,6 +1,6 @@
 
-// Este código es de dominio público
-// Miguel Rodríguez Gallego
+// This code is in the public domain
+// Miguel Rodriguez Gallego
 
 #include "Scene.hpp"
 #include "Window.hpp"
@@ -30,12 +30,12 @@ int main(int, char* [])
     int  mouse_y = 0;
     bool button_down = false;
 
-    bool camera_active = true;  // Modo FPS activado al inicio
+    bool camera_active = true;  // FPS camera mode on at startup
     SDL_SetRelativeMouseMode(SDL_TRUE);
 
     do
     {
-        // Se procesan los eventos acumulados:
+        // Process pending events:
 
         SDL_Event event;
 
@@ -61,13 +61,13 @@ int main(int, char* [])
                 switch (event.key.keysym.sym) 
                 {
                 case SDLK_ESCAPE:
-                    camera_active = !camera_active; // Alternar modo
+                    camera_active = !camera_active; // Toggle mode
                     SDL_SetRelativeMouseMode(camera_active ? SDL_TRUE : SDL_FALSE);
                     break;
 
                 //case SDLK_w || SDLK_a || SDLK_s || SDLK_d:
                 //    scene.camera.process_keyboard(keystate, delta_time);
-                //    // puedes añadir más cases para otras teclas
+                //    // add more cases for other keys here
                 default:
                     break;
                 }
@@ -80,20 +80,20 @@ int main(int, char* [])
             }
         }
 
-        // Leer el estado actual del teclado
+        // Read the current keyboard state
         const Uint8* keystate = SDL_GetKeyboardState(NULL);
-        // Tiempo fijo entre frames (ajusta según tu temporizador real si tienes)
+        // Fixed time step (replace with a real timer)
         float delta_time = 1.0f / 60.0f;
 
         scene.camera.process_keyboard(keystate, delta_time);
 
-        // Se actualiza la escena:
+        // Update the scene:
         scene.update();
 
-        // Se redibuja la escena:
+        // Render the scene:
         scene.render();
 
-        // Se actualiza el contenido de la ventana:
+        // Present the frame:
         window.swap_buffers();
     } while (not exit);
 

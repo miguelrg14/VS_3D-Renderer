@@ -1,6 +1,6 @@
 
-// Este código es de dominio público
-// Miguel Rodríguez Gallego
+// This code is in the public domain
+// Miguel Rodriguez Gallego
 
 #include "Camera.hpp"
 #include <SDL.h>
@@ -10,9 +10,9 @@ namespace udit
 
     void Camera::process_keyboard(const Uint8* keys, float deltaTime)
     {
-        // Dirección «forward»
+        // Forward direction
         glm::vec3 forward = glm::normalize(glm::vec3(target - location));
-        // Eje «right» a partir de «forward» y up global (0,1,0)
+        // Right axis from forward and the world up (0,1,0)
         glm::vec3 right = glm::normalize(glm::cross(forward, glm::vec3(0.f, 1.f, 0.f)));
         float velocity = movementSpeed * deltaTime;
 
@@ -24,19 +24,19 @@ namespace udit
 
     void Camera::process_mouse(int xrel, int yrel)
     {
-        // Aplica sensibilidad
+        // Apply the sensitivity
         float xoffset = xrel * mouseSensitivity;
         float yoffset = yrel * mouseSensitivity;
 
-        // 1) Ajusta yaw y pitch
-        yaw += xoffset;   // mover ratón a la derecha aumenta yaw
-        pitch -= yoffset;   // mover ratón hacia arriba aumenta pitch
+        // 1) Update yaw and pitch
+        yaw += xoffset;   // moving the mouse right increases yaw
+        pitch -= yoffset;   // moving the mouse up increases pitch
 
-        // 2) Clamp al pitch para evitar 'voltear' la cámara
+        // 2) Clamp the pitch so the camera can't flip over
         if (pitch > 89.0f) pitch = 89.0f;
         if (pitch < -89.0f) pitch = -89.0f;
 
-        // 3) Reconstruye el target a partir de esos ángulos
+        // 3) Rebuild the target from those angles
         updateCameraVectors();
     }
 

@@ -1,6 +1,6 @@
 
-// Este código es de dominio público
-// Miguel Rodríguez Gallego
+// This code is in the public domain
+// Miguel Rodriguez Gallego
 
 #include <cassert>
 #include <iostream>
@@ -90,20 +90,20 @@ namespace udit
     {
         //assert(texture_cube.is_ok ());
 
-        // Se compilan y linkan los shaders:
+        // Compile and link the shaders:
         shader_program_id = compile_shaders ();
 
         model_view_matrix_id = glGetUniformLocation (shader_program_id, "model_view_matrix");
         projection_matrix_id = glGetUniformLocation (shader_program_id, "projection_matrix");
 
-        // Se generan índices para los VBOs del cubo:
+        // Generate the cube VBO ids:
         glGenBuffers (1, &vbo_id);
         glGenVertexArrays (1, &vao_id);
 
-        // Se activa el VAO del cubo para configurarlo:
+        // Bind the cube VAO to configure it:
         glBindVertexArray (vao_id);
 
-        // Se suben a un VBO los datos de coordenadas y se vinculan al VAO:
+        // Upload the coordinates to a VBO and link them to the VAO:
         glBindBuffer (GL_ARRAY_BUFFER, vbo_id);
         glBufferData (GL_ARRAY_BUFFER, sizeof(coordinates), coordinates, GL_STATIC_DRAW);
 
@@ -115,7 +115,7 @@ namespace udit
 
     Skybox::~Skybox()
     {
-        // Se libera el VBO y el VAO usados:
+        // Release the VBO and the VAO:
         glDeleteVertexArrays (1, &vao_id);
         glDeleteBuffers      (1, &vbo_id);
     }
@@ -126,18 +126,18 @@ namespace udit
 
         texture_cube.bind ();
 
-        // Obtiene la vista completa (lookAt = rotación + traslación)
+        // Full view matrix (lookAt = rotation + translation)
         glm::mat4   model_view_matrix = camera.get_transform_matrix_inverse ();
 
-        // Elimina la traslación: deja solo la rotación
+        // Remove the translation, keep only the rotation
         model_view_matrix[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
-        // Envía la matriz “sin traslación” al shader
+        // Send the translation-free matrix to the shader
         const glm::mat4& projection_matrix = camera.get_projection_matrix();
         glUniformMatrix4fv(model_view_matrix_id, 1, GL_FALSE, glm::value_ptr(model_view_matrix));
         glUniformMatrix4fv(projection_matrix_id, 1, GL_FALSE, glm::value_ptr(projection_matrix));
 
-        // Dibuja el skybox
+        // Draw the skybox
         glDepthMask (GL_FALSE);
         glDepthFunc(GL_LEQUAL);
         glBindVertexArray (vao_id);
@@ -153,11 +153,11 @@ namespace udit
     {
         GLint succeeded = GL_FALSE;
 
-        // Se crean objetos para los shaders:
+        // Create the shader objects:
         GLuint   vertex_shader_id = glCreateShader (GL_VERTEX_SHADER  );
         GLuint fragment_shader_id = glCreateShader (GL_FRAGMENT_SHADER);
 
-        // Se carga el código de los shaders:
+        // Load the shader source code:
         const char *   vertex_shaders_code[] = {          vertex_shader_code.c_str () };
         const char * fragment_shaders_code[] = {        fragment_shader_code.c_str () };
         const GLint    vertex_shaders_size[] = { (GLint)  vertex_shader_code.size  () };
@@ -166,32 +166,32 @@ namespace udit
         glShaderSource  (  vertex_shader_id, 1,   vertex_shaders_code,   vertex_shaders_size);
         glShaderSource  (fragment_shader_id, 1, fragment_shaders_code, fragment_shaders_size);
 
-        // Se compilan los shaders:
+        // Compile the shaders:
         glCompileShader (  vertex_shader_id);
         glCompileShader (fragment_shader_id);
 
-        // Se comprueba que si la compilación ha tenido éxito:
+        // Check that compilation succeeded:
         glGetShaderiv   (  vertex_shader_id, GL_COMPILE_STATUS, &succeeded);
         if (!succeeded) show_compilation_error (  vertex_shader_id);
 
         glGetShaderiv   (fragment_shader_id, GL_COMPILE_STATUS, &succeeded);
         if (!succeeded) show_compilation_error (fragment_shader_id);
 
-        // Se crea un objeto para un programa:
+        // Create a program object:
         GLuint program_id = glCreateProgram ();
 
-        // Se cargan los shaders compilados en el programa:
+        // Attach the compiled shaders to the program:
         glAttachShader  (program_id,   vertex_shader_id);
         glAttachShader  (program_id, fragment_shader_id);
 
-        // Se linkan los shaders:
+        // Link the shaders:
         glLinkProgram   (program_id);
 
-        // Se comprueba si el linkage ha tenido éxito:
+        // Check that linking succeeded:
         glGetProgramiv  (program_id, GL_LINK_STATUS, &succeeded);
         if (!succeeded) show_linkage_error (program_id);
 
-        // Se liberan los shaders compilados una vez se han linkado:
+        // Release the compiled shaders once they are linked:
         glDeleteShader (  vertex_shader_id);
         glDeleteShader (fragment_shader_id);
 

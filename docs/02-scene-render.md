@@ -2,7 +2,7 @@
 
 The final assignment: a navigable 3D scene that combines model loading, texturing, lighting, fog, a skybox, a GPU-displaced terrain, transparency and a post-processing pass.
 
-Solution: `02_Scene-render/project/UDIT-4º_PG_P2_Renderizar-escena.sln`
+Solution: `02_Scene-render/project/02_Scene-render.sln`
 
 ![Scene render: skybox, heightmap terrain, imported models, fog and sepia post-process](images/02-scene-render.gif)
 
@@ -184,10 +184,10 @@ Draws the FBO texture onto a fullscreen quad already in clip space, converts it 
 |---|---|---|
 | Skybox | around the camera | `assets/sky-cube-map-{0..5}.png` |
 | Terrain | origin | `assets/height-map.png`, wireframe |
-| `Terreno.obj` | `(15, 0, 0)` | `Stone_Base_Color.png` |
+| `Ground.obj` | `(15, 0, 0)` | `Stone_Base_Color.png` |
 | `Painting.obj` | `(10, 0, -3)` | `Frame1.jpg` |
 | `Plant.obj` | `(-10, -1, 0)` | `plant1_Material.001_BaseColor.png` |
-| `Umbrella.obj` | `(-15, 0, 0)` | `Paraguas_DefaultMaterial_BaseColor.png` |
+| `Umbrella.obj` | `(-15, 0, 0)` | `Umbrella_DefaultMaterial_BaseColor.png` |
 | Rotating cube | `(-10, 0, -10)` | spins on Y |
 | Orbiting cube | child of the rotating cube, offset `(5, 0, 0)`, scale 0.5 | parent-child transform done by hand |
 | Transparent cube | `(10, 0, 0)`, scale 0.5 | blended pass |

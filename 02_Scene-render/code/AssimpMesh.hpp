@@ -1,6 +1,6 @@
 
-// Este código es de dominio público
-// Miguel Rodríguez Gallego
+// This code is in the public domain
+// Miguel Rodriguez Gallego
 
 #ifndef ASSIMPMESH_HEADER
 #define ASSIMPMESH_HEADER
@@ -29,8 +29,8 @@
             GLuint  vbo_ids[VBO_COUNT];
             GLsizei number_of_indices = 0;
 
-            // Nueva parte:
-            /// Ruta a la textura que queramos usar para este mesh
+            // Texture:
+            /// Path of the texture used by this mesh
             void setTexturePath(const std::string& path) { texturePath = path; }
             void   setTextureID(           GLuint    id) { textureID   = id;   }
 
