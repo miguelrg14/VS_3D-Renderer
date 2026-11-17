@@ -8,7 +8,7 @@
 | IDE | Visual Studio 2022 (platform toolset **v143**) with *Desktop development with C++* |
 | GPU | OpenGL **3.3 Core Profile** or newer |
 
-The prebuilt libraries in `libraries/` are **static x64 MSVC** builds, so only the x64 platform links. Win32/x86, MinGW, Linux and macOS would need the dependencies rebuilt (see [known-issues.md](known-issues.md#portability)).
+The prebuilt libraries in `libraries/` are **static x64 MSVC** builds, so only the x64 platform links. Win32/x86, MinGW, Linux and macOS would need the dependencies rebuilt.
 
 ## Steps
 

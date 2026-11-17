@@ -108,7 +108,6 @@ VS_3D-Renderer/
 - [01 · Geometric figures](docs/01-geometric-figures.md): mesh generation algorithms
 - [02 · Scene render](docs/02-scene-render.md): architecture, frame pipeline, shaders and class reference
 - [Building & troubleshooting](docs/building.md)
-- [Known issues & roadmap](docs/known-issues.md)
 
 ---
 
