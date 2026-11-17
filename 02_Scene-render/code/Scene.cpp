@@ -328,9 +328,10 @@ namespace udit
         glDeleteProgram(terrain_program_id);
     }
 
-    void Scene::update ()
+    void Scene::update (float delta_time)
     {
-        angle += 0.01f; // Real-time scene rotation
+        // Real-time scene rotation: 0.6 rad/s, the speed it had at a fixed 60 FPS
+        angle += 0.6f * delta_time;
     }
 
 

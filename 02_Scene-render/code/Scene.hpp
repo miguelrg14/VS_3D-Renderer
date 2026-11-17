@@ -80,7 +80,7 @@ namespace udit
         Scene(const Scene &) = delete;
         Scene & operator = (const Scene &) = delete;
 
-        void   update();
+        void   update(float delta_time);
         void   render();
         void   resize(unsigned width, unsigned height);
 
