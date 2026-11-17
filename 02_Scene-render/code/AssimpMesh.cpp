@@ -6,7 +6,6 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
-#include <SOIL2.h>          // for SOIL_load_OGL_texture
 #include <gtc/type_ptr.hpp>
 #include <stdexcept>
 #include <vector>
@@ -32,11 +31,20 @@ namespace udit
         Assimp::Importer importer;
 
         // 1) Import the model
+        //    - PreTransformVertices bakes the node hierarchy into the vertices, so every
+        //      mesh of the file ends up in the right place
+        //    - GenSmoothNormals only creates normals for meshes that don't have them
         const aiScene* scene = importer.ReadFile
         (
             mesh_file_path,
-            aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType
+            aiProcess_Triangulate           |
+            aiProcess_JoinIdenticalVertices |
+            aiProcess_SortByPType           |
+            aiProcess_PreTransformVertices  |
+            aiProcess_GenSmoothNormals
         );
+
+        // A null scene means the file could not be loaded:
         if (!scene || scene->mNumMeshes == 0)
         {
             throw std::runtime_error
@@ -45,76 +53,93 @@ namespace udit
             );
         }
 
-        // A null scene means the file could not be loaded:
-        if (scene && scene->mNumMeshes > 0)
+        // 2) Merge every triangle mesh of the file into one set of buffers, so the
+        //    whole model is drawn with a single call
+        std::vector<glm::vec3> positions;
+        std::vector<glm::vec3> normals;
+        std::vector<glm::vec2> uvs;
+        std::vector<GLuint>    indices;      // 32-bit, so meshes can have more than 65,535 vertices
+
+        for (unsigned m = 0; m < scene->mNumMeshes; ++m)
         {
-            // 2) Upload the geometry
-            aiMesh* mesh = scene->mMeshes[0];
-            size_t  nverts = mesh->mNumVertices;
+            const aiMesh * mesh = scene->mMeshes[m];
 
-            // Generate the cube VBO ids:
-            glGenVertexArrays(1, &vao_id);
-            glGenBuffers(VBO_COUNT, vbo_ids);
-            // Bind the cube VAO to configure it:
-            glBindVertexArray(vao_id);
+            // SortByPType splits points and lines into their own meshes; only triangles are drawn
+            if (!(mesh->mPrimitiveTypes & aiPrimitiveType_TRIANGLE)) continue;
 
-            // --- Coordinates ---
-            glBindBuffer(GL_ARRAY_BUFFER, vbo_ids[COORD_VBO]);
-            glBufferData(GL_ARRAY_BUFFER, nverts * sizeof(aiVector3D), mesh->mVertices, GL_STATIC_DRAW);
-            glEnableVertexAttribArray(0);
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+            const GLuint base_vertex = GLuint(positions.size());
 
-            // --- Normals --- (used for lighting)
-            if (mesh->HasNormals())
+            for (unsigned i = 0; i < mesh->mNumVertices; ++i)
             {
-                // Upload the colours to a VBO and link them to the VAO:
-                glBindBuffer(GL_ARRAY_BUFFER, vbo_ids[NORMAL_VBO]);
-                glBufferData(GL_ARRAY_BUFFER, nverts * sizeof(aiVector3D), mesh->mNormals, GL_STATIC_DRAW);
-                glEnableVertexAttribArray(1);
-                glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-            }
+                const aiVector3D & p = mesh->mVertices[i];
+                positions.emplace_back(p.x, p.y, p.z);
 
-            // --- UVs --- (texture coordinates)
-            if (mesh->HasTextureCoords(0))
-            {
-                std::vector<glm::vec2> uvs(nverts);
-                for (size_t i = 0; i < nverts; ++i)
+                if (mesh->HasNormals())
                 {
-                    uvs[i] = glm::vec2
-                    (
-                        mesh->mTextureCoords[0][i].x,
-                        mesh->mTextureCoords[0][i].y
-                    );
+                    const aiVector3D & n = mesh->mNormals[i];
+                    normals.emplace_back(n.x, n.y, n.z);
                 }
-                glBindBuffer(GL_ARRAY_BUFFER, vbo_ids[UV_VBO]);
-                glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), uvs.data(), GL_STATIC_DRAW);
-                glEnableVertexAttribArray(2);
-                glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+                else normals.emplace_back(0.f, 0.f, 0.f);
+
+                if (mesh->HasTextureCoords(0))
+                {
+                    const aiVector3D & t = mesh->mTextureCoords[0][i];
+                    uvs.emplace_back(t.x, t.y);
+                }
+                else uvs.emplace_back(0.f, 0.f);
             }
 
-            // Indices
-            // Assimp stores indices per "face", but OpenGL needs a flat integer array,
-            // so the face indices are copied into one array:
-            // Every face is assumed to be a triangle (see the aiProcess_Triangulate flag above).
-            number_of_indices = mesh->mNumFaces * 3;
-            std::vector<GLuint> indices;      // 32-bit, so meshes can have more than 65,535 vertices
-            indices.reserve(number_of_indices);
+            // Assimp stores indices per face; they are offset by the vertices of the
+            // meshes already merged:
             for (unsigned i = 0; i < mesh->mNumFaces; ++i)
             {
-                auto& f = mesh->mFaces[i];
-                indices.push_back(f.mIndices[0]);
-                indices.push_back(f.mIndices[1]);
-                indices.push_back(f.mIndices[2]);
+                const aiFace & face = mesh->mFaces[i];
+
+                if (face.mNumIndices != 3) continue;
+
+                indices.push_back(base_vertex + face.mIndices[0]);
+                indices.push_back(base_vertex + face.mIndices[1]);
+                indices.push_back(base_vertex + face.mIndices[2]);
             }
-
-            // Upload the indices to an EBO:
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo_ids[INDICES_EBO]);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
-
-            glBindVertexArray(0);
         }
-    }
 
+        if (indices.empty())
+        {
+            throw std::runtime_error("Could not load mesh: " + mesh_file_path + " has no triangles");
+        }
+
+        number_of_indices = GLsizei(indices.size());
+
+        // 3) Upload the geometry
+        glGenVertexArrays(1, &vao_id);
+        glGenBuffers(VBO_COUNT, vbo_ids);
+
+        glBindVertexArray(vao_id);
+
+        // --- Coordinates ---
+        glBindBuffer(GL_ARRAY_BUFFER, vbo_ids[COORD_VBO]);
+        glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(glm::vec3), positions.data(), GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+        // --- Normals --- (used for lighting)
+        glBindBuffer(GL_ARRAY_BUFFER, vbo_ids[NORMAL_VBO]);
+        glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), normals.data(), GL_STATIC_DRAW);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+        // --- UVs --- (texture coordinates)
+        glBindBuffer(GL_ARRAY_BUFFER, vbo_ids[UV_VBO]);
+        glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), uvs.data(), GL_STATIC_DRAW);
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+        // --- Indices ---
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo_ids[INDICES_EBO]);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
+
+        glBindVertexArray(0);
+    }
 
     void AssimpMesh::draw(const glm::mat4& modelMatrix, GLuint shaderProgram) const
     {
