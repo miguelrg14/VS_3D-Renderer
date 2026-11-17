@@ -435,3 +435,7 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Keep the 3D models used by the scenes.
+# The *.obj rules above are meant for MSVC object files, not Wavefront models.
+!**/assets/*.obj
