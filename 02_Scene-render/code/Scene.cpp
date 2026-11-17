@@ -2,13 +2,12 @@
 // This code is in the public domain
 // Miguel Rodriguez Gallego
 
-#pragma once
-
 #include "Scene.hpp"
 
 #include <cassert>
 #include <cstdlib>
 #include <iostream>
+#include <stdexcept>
 #include <vector>
 
 #include <glm.hpp>                          // vec3, vec4, ivec4, mat4
@@ -239,10 +238,10 @@ namespace udit
 
     Scene::Scene(unsigned width, unsigned height)
         : 
-        camera(float(width) / float(height)),
-        skybox("../assets/sky-cube-map-"),
+        terrain(10.f, 10.f, 50, 50),
         angle(0),
-        terrain(10.f, 10.f, 50, 50)
+        camera(float(width) / float(height)),
+        skybox("../assets/sky-cube-map-")
     {
         /// Scene graph
         rootNode = std::make_unique<SceneNode>();
@@ -252,7 +251,7 @@ namespace udit
         terrain_program_id = compile_shaders(terrain_vertex_shader_code,terrain_fragment_shader_code);
 
         // 2) Load the height map (red channel of a PNG)
-        height_texture_id = create_texture_2d<GLuint>("../assets/height-map.png");
+        height_texture_id = create_texture_2d(texture_path_terrain);
 
         // 3) Set the static uniforms
         glUseProgram(terrain_program_id);
@@ -312,18 +311,20 @@ namespace udit
 
     Scene::~Scene()
     {
-        glDeleteVertexArrays(1, &vao_id);
-        glDeleteBuffers(VBO_COUNT, vbo_ids);
+        // Post-processing resources
+        glDeleteVertexArrays (1, &framebuffer_quad_vao);
+        glDeleteBuffers      (2,  framebuffer_quad_vbos);
+        glDeleteTextures     (1, &out_texture_id);
+        glDeleteRenderbuffers(1, &depthbuffer_id);
+        glDeleteFramebuffers (1, &framebuffer_id);
 
-        glDeleteVertexArrays(1, &framebuffer_quad_vao);
-        glDeleteBuffers(2, framebuffer_quad_vbos);
+        // Terrain height map
+        glDeleteTextures(1, &height_texture_id);
 
+        // Shader programs
         glDeleteProgram(program_id);
-
-        if (there_is_texture)
-        {
-            glDeleteTextures(1, &texture_id);
-        }
+        glDeleteProgram(effect_program_id);
+        glDeleteProgram(terrain_program_id);
     }
 
     void Scene::update ()
@@ -371,21 +372,9 @@ namespace udit
         // 1.4) Opaque objects (cubes and meshes)
         glUseProgram(program_id);
 
-        /// Bind the diffuse texture if there is one
-        if (there_is_texture)
-        {
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, texture_id);
-            glUniform1i(glGetUniformLocation(program_id, "sampler"), 0);
-        }
-
         glUniformMatrix4fv(projection_matrix_id, 1, GL_FALSE, glm::value_ptr(camera_projection));
 
         rootNode->draw(view, program_id);
-        ///
-        // Draw the main VAO
-        glBindVertexArray(vao_id);
-        glDrawElements(GL_TRIANGLES, number_of_indices, GL_UNSIGNED_SHORT, nullptr);
 
         /// Rotating cubes
         glm::mat4      model_cube = glm::translate (glm::mat4(1.0f), glm::vec3(-10.0f, 0.0f, -10.0f)) * glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -406,7 +395,10 @@ namespace udit
 
                     model_view_child_cube = view * model_cube * model_view_child_cube;
 
+        glm::mat4 normal_child_cube = glm::transpose(glm::inverse(model_view_child_cube));
+
         glUniformMatrix4fv(model_view_matrix_id, 1, GL_FALSE, glm::value_ptr(model_view_child_cube));
+        glUniformMatrix4fv(    normal_matrix_id, 1, GL_FALSE, glm::value_ptr(normal_child_cube    ));
 
         cube.render();
         /// Rotating cubes
@@ -424,7 +416,10 @@ namespace udit
 
         model_view_transparent_cube = view * model_view_transparent_cube;
 
+        glm::mat4 normal_transparent_cube = glm::transpose(glm::inverse(model_view_transparent_cube));
+
         glUniformMatrix4fv(model_view_matrix_id, 1, GL_FALSE, glm::value_ptr(model_view_transparent_cube));
+        glUniformMatrix4fv(    normal_matrix_id, 1, GL_FALSE, glm::value_ptr(normal_transparent_cube    ));
 
         cube.render();  // transparent cube
 
@@ -440,8 +435,10 @@ namespace udit
         glUseProgram(effect_program_id);
 
         glBindVertexArray(framebuffer_quad_vao);
+        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, out_texture_id);
         glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(0);
     }
 
     /// <summary>
@@ -454,9 +451,7 @@ namespace udit
         window_width  = width;
         window_height = height;
 
-        glm::mat4 projection_matrix = glm::perspective (20.f, GLfloat(width) / height, 1.f, 5000.f);
-
-        glUniformMatrix4fv (projection_matrix_id, 1, GL_FALSE, glm::value_ptr(projection_matrix));
+        camera.set_ratio(float(width) / float(height));
 
         glViewport (0, 0, width, height);
     }
@@ -560,25 +555,6 @@ namespace udit
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
     }
 
-    void Scene::render_framebuffer()
-    {
-        glViewport(0, 0, window_width, window_height);
-
-        // Bind the window framebuffer:
-
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        glUseProgram(effect_program_id);
-
-        // Draw the framebuffer texture to the window:
-
-        glBindTexture(GL_TEXTURE_2D, out_texture_id);
-
-        glBindVertexArray(framebuffer_quad_vao);
-
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-    }
-
     ///----------------------------------------------------
 
     /// <summary>
@@ -594,16 +570,27 @@ namespace udit
     {
         auto mesh = std::make_shared<AssimpMesh>();
 
-        // Load the texture and hand it to the mesh:
-        GLuint tex = create_texture_2d<GLuint>(texture_file_path);
-        if (tex == GLuint(-1)) 
+        // Load the texture and hand it to the mesh (the mesh owns it from now on):
+        GLuint texture = create_texture_2d(texture_file_path);
+
+        if (texture == 0)
         {
             std::cerr << "[Scene] failed to load texture: " << texture_file_path << "\n";
         }
-        mesh->setTextureID(tex);
 
-        // Then load the geometry:
-        mesh->load(mesh_file_path);
+        mesh->setTextureID(texture);
+
+        // Then load the geometry. A missing or broken model is skipped instead of
+        // stopping the whole scene:
+        try
+        {
+            mesh->load(mesh_file_path);
+        }
+        catch (const std::exception & error)
+        {
+            std::cerr << "[Scene] skipping model: " << error.what() << "\n";
+            return;
+        }
 
         auto node = std::make_unique<SceneNode>();
         node->addMesh(mesh);
@@ -635,16 +622,6 @@ namespace udit
         glUniform1f(spec_int_loc     , 1.0f                  ); // highlight strength
         glUniform1f(shininess_loc    , 32.0f                 ); // material shininess
         glUniform3f(spec_color_loc   , 1.0f, 1.0f, 1.0f      ); // highlight colour (white)
-    }
-    
-    glm::vec3 Scene::random_color()
-    {
-        return glm::vec3
-        (
-            float(rand()) / float(RAND_MAX),
-            float(rand()) / float(RAND_MAX),
-            float(rand()) / float(RAND_MAX)
-        );
     }
 
 }

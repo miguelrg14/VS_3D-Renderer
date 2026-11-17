@@ -24,81 +24,49 @@ namespace udit
     {
     private:
 
-        typedef Color_Buffer< Rgba8888 > Color_Buffer;
-        //typedef Color_Buffer< Monochrome8 > Color_Buffer;
-
         std::unique_ptr<SceneNode> rootNode;
 
-        enum
-        {
-            COORDINATES_VBO,
-            COLORS_VBO,
-            INDICES_EBO,
-            UVS_VBO,
-            VBO_COUNT
-        };
-
         // Post-processing: off-screen framebuffer resolution
-        GLsizei  framebuffer_width = 256; // 256; // 1024;
-        GLsizei framebuffer_height = 256; // 256; // 1024;
+        GLsizei  framebuffer_width = 256;
+        GLsizei framebuffer_height = 256;
 
-        static const std::string          vertex_shader_code;
-        static const std::string        fragment_shader_code;
-        static const std::string                texture_path;
-        static const std::string        texture_path_terrain;
-        static const std::string   effect_vertex_shader_code;
-        static const std::string effect_fragment_shader_code;
-
-    public:
-        static const std::string terrain_vertex_shader_code;
+        static const std::string           vertex_shader_code;
+        static const std::string         fragment_shader_code;
+        static const std::string    effect_vertex_shader_code;
+        static const std::string  effect_fragment_shader_code;
+        static const std::string   terrain_vertex_shader_code;
         static const std::string terrain_fragment_shader_code;
+        static const std::string         texture_path_terrain;
 
-    private:
+        /// Shader programs
+        GLuint          program_id = 0;
+        GLuint   effect_program_id = 0;
+        GLuint  terrain_program_id = 0;
 
-        GLuint terrain_program_id = 0;
-        GLuint height_texture_id = 0;
-
-        GLint           model_view_matrix_id;
-        GLint           projection_matrix_id;
-        GLint               normal_matrix_id;
-        GLint              material_color_id;
-        GLuint                framebuffer_id;
-        GLuint                depthbuffer_id;
-        GLuint                out_texture_id;
-        GLuint  terrain_projection_matrix_id;
-        GLuint  terrain_model_view_matrix_id;
+        /// Uniform locations
+        GLint           model_view_matrix_id = -1;
+        GLint           projection_matrix_id = -1;
+        GLint               normal_matrix_id = -1;
+        GLint              material_color_id = -1;
+        GLint   terrain_projection_matrix_id = -1;
+        GLint   terrain_model_view_matrix_id = -1;
 
         /// Terrain (height-mapped grid)
+        GLuint height_texture_id = 0;
         Terrain terrain;
 
         Cube  cube;
-
         float angle;
 
-        /// 3D model loading
-        GLuint  vao_model, vbo_model, ebo_model;
-        GLsizei index_count = 0;
-
-        /// Random colour
-        GLuint  vbo_ids[VBO_COUNT];
-        GLuint              vao_id;
-        GLsizei  number_of_indices;
-
-        /// Texture loading
-        GLuint          program_id;
-        GLuint      texture_id = 0;
-        GLuint use_vertex_color_id;
-        //GLuint     cube_program_id;
-        GLuint   effect_program_id;
-
-        bool      there_is_texture;
-
         /// Post-processing
-        GLuint     framebuffer_quad_vao;
-        GLuint framebuffer_quad_vbos[2];
+        GLuint           framebuffer_id = 0;
+        GLuint           depthbuffer_id = 0;
+        GLuint           out_texture_id = 0;
+        GLuint     framebuffer_quad_vao = 0;
+        GLuint framebuffer_quad_vbos[2] = { 0, 0 };
 
-        int window_width;
-        int window_height;
+        int window_width  = 0;
+        int window_height = 0;
 
     public:
 
@@ -109,16 +77,17 @@ namespace udit
         Scene(unsigned width, unsigned height);
         ~Scene();
 
+        Scene(const Scene &) = delete;
+        Scene & operator = (const Scene &) = delete;
+
         void   update();
         void   render();
         void   resize(unsigned width, unsigned height);
-        //void   load_model   (const std::string& path);
 
     private:
 
         /// Post-processing
         void   build_framebuffer();
-        void   render_framebuffer();
 
         void load_mesh
         (
@@ -126,7 +95,6 @@ namespace udit
             const std::string& texture_file_path, 
             const glm::mat4& localTransform = glm::mat4(1.0f)
         );
-        glm::vec3   random_color();
 
         void   configure_material(GLuint program_id);
         void   configure_light(GLuint program_id);

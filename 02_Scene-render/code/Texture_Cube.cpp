@@ -30,8 +30,6 @@ namespace udit
 
         // Create a texture object:
 
-        glEnable        (GL_TEXTURE_CUBE_MAP);
-
         glGenTextures   (1, &texture_id);
 
         glActiveTexture (GL_TEXTURE0);

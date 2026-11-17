@@ -62,7 +62,8 @@ namespace udit
 
     // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
 
-    template<typename COLOR_FORMAT>
+    /// Loads an image file into a mipmapped RGBA 2D texture.
+    /// Returns 0 if the image could not be loaded.
     GLuint create_texture_2d(const std::string& texture_path);
 
 }

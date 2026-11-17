@@ -86,9 +86,6 @@ namespace udit
 
     void Cube::render ()
     {
-        // Enable wireframe mode 
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
         // Bind the VAO holding the object data and draw its elements:
         glBindVertexArray (vao_id);
         glDrawElements    (GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_BYTE, 0);

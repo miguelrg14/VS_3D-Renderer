@@ -127,8 +127,6 @@ namespace udit
 
     void Plane::render()
     {
-        // Enable wireframe mode
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         // Bind the VAO holding the object data and draw its elements:
         glBindVertexArray(vao_id);
         glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0); 

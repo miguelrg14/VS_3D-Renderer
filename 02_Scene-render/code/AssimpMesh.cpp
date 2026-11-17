@@ -20,6 +20,10 @@ namespace udit
     }
     AssimpMesh::~AssimpMesh()
     {
+        // Deleting name 0 is a no-op, so this is safe even if load() failed
+        glDeleteVertexArrays(1, &vao_id);
+        glDeleteBuffers(VBO_COUNT, vbo_ids);
+
         if (textureID) glDeleteTextures(1, &textureID);
     }
 
@@ -93,7 +97,7 @@ namespace udit
             // so the face indices are copied into one array:
             // Every face is assumed to be a triangle (see the aiProcess_Triangulate flag above).
             number_of_indices = mesh->mNumFaces * 3;
-            std::vector<GLushort> indices;
+            std::vector<GLuint> indices;      // 32-bit, so meshes can have more than 65,535 vertices
             indices.reserve(number_of_indices);
             for (unsigned i = 0; i < mesh->mNumFaces; ++i)
             {
@@ -105,7 +109,7 @@ namespace udit
 
             // Upload the indices to an EBO:
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo_ids[INDICES_EBO]);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLushort), indices.data(), GL_STATIC_DRAW);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
 
             glBindVertexArray(0);
         }
@@ -129,7 +133,7 @@ namespace udit
 
         // 3) Draw the mesh
         glBindVertexArray(vao_id);
-        glDrawElements(GL_TRIANGLES, number_of_indices,GL_UNSIGNED_SHORT,nullptr);
+        glDrawElements(GL_TRIANGLES, number_of_indices, GL_UNSIGNED_INT, nullptr);
         glBindVertexArray(0);
     }
 }

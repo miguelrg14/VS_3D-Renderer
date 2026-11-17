@@ -28,7 +28,6 @@ int main(int, char* [])
     bool exit = false;
     int  mouse_x = 0;
     int  mouse_y = 0;
-    bool button_down = false;
 
     bool camera_active = true;  // FPS camera mode on at startup
     SDL_SetRelativeMouseMode(SDL_TRUE);

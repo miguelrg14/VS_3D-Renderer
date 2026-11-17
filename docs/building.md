@@ -51,7 +51,7 @@ Visual Studio's default working directory is `$(ProjectDir)`, which is `02_Scene
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| Unhandled `std::runtime_error: Could not load mesh` on startup | A `.obj` model is missing from `assets/` or the working directory is wrong | Check the models are in `02_Scene-render/assets/` and run from the IDE |
+| A model is missing and the console shows `[Scene] skipping model` | The `.obj` is not in `assets/` or the working directory is wrong | Check the models are in `02_Scene-render/assets/` and run from the IDE |
 | Black skybox or textures | Images not found relative to the working directory | Check *Project → Properties → Debugging → Working Directory* = `$(ProjectDir)` |
 | `LNK2038` / `LNK1112` link errors | Building Win32, or a different toolset | Use **x64** and toolset **v143** |
 | Very pixelated output | Intended: the scene renders into a 256×256 framebuffer | Raise `framebuffer_width/height` in `Scene.hpp` |

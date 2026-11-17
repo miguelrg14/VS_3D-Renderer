@@ -87,12 +87,12 @@ classDiagram
 | `Camera.hpp/.cpp` | FPS camera. `yaw`/`pitch` define a front vector, the view matrix comes from `glm::lookAt`, and the projection is `glm::perspective` (FOV 90°, near 0.1, far 1000). Pitch is clamped to ±89°. |
 | `SceneNode.hpp` | Scene graph node. `draw()` computes `global = parent × local`, uploads `model_view_matrix` and `normal_matrix`, draws its meshes and recurses into its children. |
 | `Mesh.hpp` | Abstract mesh interface (`load`, `draw`). |
-| `AssimpMesh.hpp/.cpp` | Loads the first mesh of a model with Assimp (`Triangulate`, `JoinIdenticalVertices`, `SortByPType`) and uploads positions (loc 0), normals (loc 1), UVs (loc 2) and `GLushort` indices. Binds its own diffuse texture on draw. |
+| `AssimpMesh.hpp/.cpp` | Loads the first mesh of a model with Assimp (`Triangulate`, `JoinIdenticalVertices`, `SortByPType`) and uploads positions (loc 0), normals (loc 1), UVs (loc 2) and 32-bit indices. Owns its VAO, VBOs and diffuse texture and binds the texture on draw. |
 | `Cube.hpp/.cpp` | 24-vertex cube (4 per face) with flat normals, used for the animated and transparent cubes. |
 | `Skybox.hpp/.cpp` | Unit cube with its own shader, sampled from a `samplerCube`. Rendered around the camera. |
 | `Texture_Cube.hpp/.cpp` | Loads six images `sky-cube-map-0..5.png` into a `GL_TEXTURE_CUBE_MAP`. |
 | `Terrain.hpp/.cpp` | 50×50 grid over 10×10 units, stored as **half-float** XZ positions and UVs (half the memory of `float`). Laid out in a zig-zag and drawn as `GL_LINE_STRIP`. |
-| `opengl-recipes.hpp/.cpp` | Shared helpers: `compile_shaders`, error reporting, `load_image<T>` and `create_texture_2d<T>` (SOIL2, mipmaps, `GL_REPEAT`). |
+| `opengl-recipes.hpp/.cpp` | Shared helpers: `compile_shaders`, error reporting, `load_image<T>` (SOIL2) and `create_texture_2d` (RGBA, mipmaps, `GL_REPEAT`, returns 0 on failure). |
 | `Color.hpp`, `Color_Buffer.hpp` | `Rgba8888` / `Monochrome8` pixel formats and a templated 2D pixel buffer used by image loading. |
 
 ---
@@ -200,7 +200,7 @@ load_mesh("../assets/MyModel.obj",
           glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 5.0f)));
 ```
 
-Each call creates an `AssimpMesh`, wraps it in a `SceneNode` with the given local transform and attaches it to `rootNode`.
+Each call creates an `AssimpMesh`, wraps it in a `SceneNode` with the given local transform and attaches it to `rootNode`. If the model can't be loaded, a `[Scene] skipping model` message is printed to the console and the rest of the scene still loads.
 
 ---
 

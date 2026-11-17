@@ -25,8 +25,8 @@
                 VBO_COUNT 
             };
 
-            GLuint  vao_id;
-            GLuint  vbo_ids[VBO_COUNT];
+            GLuint  vao_id = 0;
+            GLuint  vbo_ids[VBO_COUNT] = {};
             GLsizei number_of_indices = 0;
 
             // Texture:
@@ -36,6 +36,9 @@
 
             AssimpMesh();
             ~AssimpMesh();
+
+            AssimpMesh(const AssimpMesh &) = delete;
+            AssimpMesh & operator = (const AssimpMesh &) = delete;
 
             void load(const std::string& mesh_file_path) override;
             void draw(const glm::mat4&   modelMatrix, GLuint shaderProgram) const override;

@@ -78,8 +78,10 @@ namespace udit
 
         Window & operator = (Window && other) noexcept
         {
-            this->window_handle  = std::exchange (other.window_handle,  nullptr);
-            this->opengl_context = std::exchange (other.opengl_context, nullptr);
+            // Swapping hands the previous window/context to `other`, whose destructor releases them:
+            std::swap (this->window_handle,  other.window_handle );
+            std::swap (this->opengl_context, other.opengl_context);
+            return *this;
         }
 
     public:

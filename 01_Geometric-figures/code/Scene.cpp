@@ -2,8 +2,6 @@
 // This code is in the public domain
 // angel.rodriguez@udit.es
 
-#pragma once
-
 #include "Scene.hpp"
 
 #include <iostream>
@@ -55,6 +53,7 @@ namespace udit
         // Basic render state:
         glEnable     (GL_CULL_FACE);
         glDisable    (GL_DEPTH_TEST);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);     // The whole scene is drawn in wireframe
         glClearColor (.1f, .1f, .1f, 1.f);
 
         // Compile and activate the shaders:
@@ -133,7 +132,7 @@ namespace udit
     /// <param name="height"></param>
     void Scene::resize (unsigned width, unsigned height)
     {
-        glm::mat4 projection_matrix = glm::perspective (20.f, GLfloat(width) / height, 1.f, 5000.f);
+        glm::mat4 projection_matrix = glm::perspective (glm::radians(66.f), GLfloat(width) / height, 1.f, 5000.f);
 
         glUniformMatrix4fv (projection_matrix_id, 1, GL_FALSE, glm::value_ptr(projection_matrix));
 
