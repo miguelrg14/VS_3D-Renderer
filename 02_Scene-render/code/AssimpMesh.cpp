@@ -83,8 +83,10 @@ namespace udit
 
                 if (mesh->HasTextureCoords(0))
                 {
+                    // Model files put v = 0 at the bottom of the image, but textures are
+                    // uploaded top row first (v = 0 is the top), so v is flipped here:
                     const aiVector3D & t = mesh->mTextureCoords[0][i];
-                    uvs.emplace_back(t.x, t.y);
+                    uvs.emplace_back(t.x, 1.f - t.y);
                 }
                 else uvs.emplace_back(0.f, 0.f);
             }
