@@ -48,6 +48,7 @@ namespace udit
         GLint           projection_matrix_id = -1;
         GLint               normal_matrix_id = -1;
         GLint              material_color_id = -1;
+        GLint              light_position_id = -1;
         GLint   terrain_projection_matrix_id = -1;
         GLint   terrain_model_view_matrix_id = -1;
 
@@ -57,6 +58,9 @@ namespace udit
 
         Cube  cube;
         float angle;
+
+        /// Lighting: a point light fixed in world space, above and to the side of the scene
+        glm::vec4 light_world_position { 10.f, 20.f, 10.f, 1.f };
 
         /// Post-processing
         GLuint           framebuffer_id = 0;

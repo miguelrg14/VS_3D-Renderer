@@ -36,73 +36,40 @@ namespace udit
         R"(
             #version 330
 
-            // Point light description
-            struct Light
-            {
-                vec4 position;        // Light position in eye space
-                vec3 color;           // Light colour/intensity (RGB)
-            };
-
             // Matrices sent from the CPU
             uniform mat4 model_view_matrix;   // Model + view: model space to eye space
-            uniform mat4 projection_matrix;   // Camera projection (perspective or orthographic)
+            uniform mat4 projection_matrix;   // Camera projection
             uniform mat4 normal_matrix;       // Matrix used to transform normals
 
-            // Specular lighting parameters
-            uniform float specular_intensity; // Overall specular strength
-            uniform float shininess;          // Shininess exponent
-            uniform vec3  specular_color;     // Specular highlight colour
-
-            // Light and component parameters
-            uniform Light light;              // Light data (position + colour)
-            uniform float ambient_intensity;  // Ambient light intensity
-            uniform float diffuse_intensity;  // Diffuse light intensity
-
-            // Material properties
-            uniform vec3 material_color;      // Base (diffuse) material colour
-
-            // Fog: range and colour
+            // Fog range (distances from the camera)
             uniform float fog_near;           // distance where the fog starts
             uniform float fog_far;            // distance where the fog is fully opaque
-            uniform vec3  fog_color;          // fog colour
 
             // Vertex attributes (VAO inputs)
             layout(location = 0) in vec3 vertex_coordinates;
             layout(location = 1) in vec3 vertex_normal;
             layout(location = 2) in vec2 vertex_uv;
 
-            // Outputs to the fragment shader
-            out vec3  front_color;            // lit colour (untextured)
+            // Outputs to the fragment shader (interpolated per pixel)
+            out vec3  view_position;          // position in eye space
+            out vec3  view_normal;            // normal in eye space
             out vec2  texture_uv;             // UV coordinates
             out float fog_factor;             // fog amount [0..1]
 
             void main() 
             {
-                // 1) Transform the position to eye space
+                // 1) Transform the position and the normal to eye space
                 vec4 pos_view = model_view_matrix * vec4(vertex_coordinates, 1.0);
 
-                // 2) Blinn-Phong lighting (ambient + diffuse + specular)
-                vec3 N = normalize((normal_matrix * vec4(vertex_normal, 0.0)).xyz);
-                vec3 L = normalize((light.position - pos_view).xyz);
-                vec3 V = normalize(-pos_view.xyz);
-                float diff = diffuse_intensity * max(dot(N, L), 0.0);
-                vec3 H = normalize(L + V);
-                float spec = specular_intensity * pow(max(dot(N, H), 0.0), shininess);
+                view_position = pos_view.xyz;
+                view_normal   = (normal_matrix * vec4(vertex_normal, 0.0)).xyz;
+                texture_uv    = vertex_uv;
 
-                // 3) Lit colour before texturing
-                vec3 lit_color = ambient_intensity * material_color
-                               + diff * light.color * material_color
-                               + spec * specular_color;
-
-                // 4) Fog factor from the eye-space distance
-                float d = -pos_view.z;  // distance from the camera (eye space)
+                // 2) Fog factor from the eye-space distance
+                float d = -pos_view.z;
                 fog_factor = clamp((d - fog_near) / (fog_far - fog_near), 0.0, 1.0);
 
-                // 5) Pass to the fragment shader, fog is blended there
-                front_color = lit_color;
-                texture_uv  = vertex_uv;
-
-                // 6) Final clip-space position
+                // 3) Final clip-space position
                 gl_Position = projection_matrix * pos_view;
             }
         )";
@@ -111,14 +78,30 @@ namespace udit
         R"(
             #version 330
 
+            // Point light description
+            struct Light
+            {
+                vec4 position;                // Light position in eye space
+                vec3 color;                   // Light colour/intensity (RGB)
+            };
+
+            uniform Light light;
+            uniform float ambient_intensity;  // Ambient light intensity
+            uniform float diffuse_intensity;  // Diffuse light intensity
+            uniform float specular_intensity; // Overall specular strength
+            uniform float shininess;          // Shininess exponent
+            uniform vec3  specular_color;     // Specular highlight colour
+            uniform vec3  material_color;     // Base (diffuse) material colour
+
             // Texture and fog
             uniform sampler2D sampler;        // unit 0: the 2D texture
             uniform vec3      fog_color;      // fog colour
 
             // Inputs from the vertex shader
-            in  vec2  texture_uv;
-            in  vec3  front_color;            // lit colour (RGB)
-            in  float fog_factor;             // [0 = clear, 1 = full fog]
+            in vec3  view_position;
+            in vec3  view_normal;
+            in vec2  texture_uv;
+            in float fog_factor;              // [0 = clear, 1 = full fog]
 
             // Output
             out vec4 fragment_color;
@@ -128,20 +111,31 @@ namespace udit
                 // Discard fragments that are fully inside the fog
                 if (fog_factor >= 1.0)
                 {
-                    discard;    // lost in the fog
+                    discard;
                 }
 
-                vec4 texcol = texture(sampler, texture_uv);             // 1) Sample the texture (rgba)
+                // 1) Blinn-Phong lighting, evaluated for every pixel
+                vec3 N = normalize(view_normal);                          // re-normalised after interpolation
+                vec3 L = normalize(light.position.xyz - view_position);
+                vec3 V = normalize(-view_position);
+                vec3 H = normalize(L + V);
 
-                vec3 littex = front_color * texcol.rgb;                 // 2) Lighting * texture.rgb
+                float diffuse  = diffuse_intensity  * max(dot(N, L), 0.0);
+                float specular = specular_intensity * pow(max(dot(N, H), 0.0), shininess);
 
-                vec3 final_rgb   = mix(littex, fog_color, fog_factor);  // 3) Blend the RGB with the fog colour
+                vec3 lit_color = ambient_intensity * material_color
+                               + diffuse * light.color * material_color
+                               + specular * specular_color;
 
-                float final_alpha = texcol.a * (0.5 - fog_factor);      // 4) Fade the original alpha with the fog
+                // 2) Texture
+                vec4 texcol = texture(sampler, texture_uv);
+                vec3 littex = lit_color * texcol.rgb;
 
-                fragment_color = vec4(final_rgb, final_alpha);          // Final result: colour + progressive transparency
+                // 3) Blend with the fog colour and fade the alpha with the fog
+                vec3  final_rgb   = mix(littex, fog_color, fog_factor);
+                float final_alpha = texcol.a * (0.5 - fog_factor);
 
-                // fragment_color = vec4(front_color, 1.0); // Test with colour only
+                fragment_color = vec4(final_rgb, final_alpha);
             }
         )";
 
@@ -280,6 +274,7 @@ namespace udit
         projection_matrix_id = glGetUniformLocation(program_id, "projection_matrix");
             normal_matrix_id = glGetUniformLocation(program_id, "normal_matrix"    );
            material_color_id = glGetUniformLocation(program_id, "material_color"   );
+           light_position_id = glGetUniformLocation(program_id, "light.position"   );
         // Terrain
         terrain_projection_matrix_id = glGetUniformLocation(terrain_program_id, "projection_matrix");
         terrain_model_view_matrix_id = glGetUniformLocation(terrain_program_id, "model_view_matrix");
@@ -375,6 +370,11 @@ namespace udit
         glUseProgram(program_id);
 
         glUniformMatrix4fv(projection_matrix_id, 1, GL_FALSE, glm::value_ptr(camera_projection));
+
+        // The light is fixed in the world; the shader works in eye space, so it is
+        // moved into eye space with the current view matrix:
+        glm::vec4 light_view_position = view * light_world_position;
+        glUniform4fv(light_position_id, 1, glm::value_ptr(light_view_position));
 
         rootNode->draw(view, program_id);
 
@@ -609,7 +609,6 @@ namespace udit
 
     void Scene::configure_light(GLuint program_id)
     {
-        GLint    light_position = glGetUniformLocation(program_id, "light.position"    );
         GLint       light_color = glGetUniformLocation(program_id, "light.color"       );
         GLint ambient_intensity = glGetUniformLocation(program_id, "ambient_intensity" );
         GLint diffuse_intensity = glGetUniformLocation(program_id, "diffuse_intensity" );
@@ -617,7 +616,6 @@ namespace udit
         GLint     shininess_loc = glGetUniformLocation(program_id, "shininess"         );
         GLint    spec_color_loc = glGetUniformLocation(program_id, "specular_color"    );
 
-        glUniform4f(light_position   , 10.0f, 10.f, 10.f, 1.f);
         glUniform3f(light_color      , 1.0f, 1.f, 1.f        );
         glUniform1f(ambient_intensity, 0.2f                  );
         glUniform1f(diffuse_intensity, 0.8f                  );
