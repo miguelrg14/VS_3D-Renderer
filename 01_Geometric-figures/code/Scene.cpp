@@ -93,7 +93,7 @@ namespace udit
         // Se rota el plano y se empuja hacia el fondo:
         glm::mat4 model_view_matrix(1);
 
-        model_view_matrix = glm::translate(model_view_matrix, glm::vec3(0.f, -2.5f, -4.f)    );
+        model_view_matrix = glm::translate(model_view_matrix, glm::vec3(0.0f, -2.5f, -4.f)    );
         model_view_matrix = glm::rotate   (model_view_matrix, -1.6f, glm::vec3(1.f, 0.f, 0.f));
 
         glUniformMatrix4fv(model_view_matrix_id, 1, GL_FALSE, glm::value_ptr(model_view_matrix));
