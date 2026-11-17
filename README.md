@@ -30,15 +30,16 @@ The repository has two Visual Studio solutions that show the progression from ha
 
 ### 02 · Scene render
 - **First-person camera**: WASD to move, mouse-look with yaw/pitch and a pitch clamp, toggled with `Esc`.
-- **Scene graph** (`SceneNode`) with local transforms passed down the hierarchy, holding polymorphic `Mesh` objects.
-- **Model import** via Assimp (`AssimpMesh`): positions, normals and UVs uploaded into separate VBOs.
+- **Scene graph** (`SceneNode`) with local transforms passed down the hierarchy, holding polymorphic `Mesh` objects. The animated cubes are nodes too: a spinning cube carries an orbiting child.
+- **Model import** via Assimp (`AssimpMesh`): every mesh of a file merged into one VAO, with positions, normals and UVs in separate VBOs.
 - **2D textures** loaded with SOIL2, with mipmaps and repeat wrapping.
-- **Blinn-Phong lighting** (ambient + diffuse + specular, half-vector) computed in the vertex shader.
+- **Per-pixel Blinn-Phong lighting** (ambient + diffuse + specular, half-vector) from a point light fixed in world space.
 - **Linear distance fog** blended in the fragment shader; fully fogged fragments are discarded.
 - **Cube-map skybox** drawn first with depth writes disabled.
 - **Heightmap terrain**: a flat grid stored as **half-float** XZ coordinates and displaced on the GPU by sampling a height texture in the vertex shader.
 - **Transparency** with `GL_BLEND` and depth writes disabled for the transparent pass.
-- **Render-to-texture post-processing**: the scene is drawn into a 256×256 framebuffer (colour texture + depth renderbuffer), then drawn to the window on a fullscreen quad with a sepia filter, which gives it a low-res retro look.
+- **Render-to-texture post-processing**: the scene is drawn into an off-screen framebuffer (colour texture + depth renderbuffer), then drawn to the window on a fullscreen quad with a sepia filter. At runtime, `P` toggles the filter and `R` switches between a 256×256 retro look and the native resolution.
+- **Frame-rate independent** camera and animation, driven by the real frame time.
 
 ---
 
@@ -81,6 +82,8 @@ See **[docs/building.md](docs/building.md)** for full details and troubleshootin
 | `A` / `D` | Strafe left / right |
 | Mouse | Look around |
 | `Esc` | Toggle camera mode (releases or captures the mouse) |
+| `P` | Sepia post-process on / off |
+| `R` | Framebuffer resolution: 256×256 retro / native |
 | Close window | Exit |
 
 ---
